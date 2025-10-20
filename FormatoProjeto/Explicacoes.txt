@@ -1,0 +1,90 @@
+============================================================
+   Estrutura dos Arquivos JSON para Modelagem de Dados
+============================================================
+
+Autor: [Seu Nome]
+Projeto: [Nome do seu Projeto - ex: SchemaFlow]
+Data: 20 de outubro de 2025
+
+Este documento descreve a estrutura dos arquivos JSON utilizados como entrada e saída em cada etapa do processo de modelagem de banco de dados, desde o nível conceitual até o físico.
+
+
+------------------------------------
+1. Estrutura Comum (Cabeçalho)
+------------------------------------
+Todos os arquivos JSON gerados pelo sistema compartilham um cabeçalho padrão para identificar o projeto e a versão do modelo.
+
+- "projectName": (String) Nome do projeto geral. Ex: "SistemaUniversidade".
+- "databaseName": (String) Nome do banco de dados a ser criado. Ex: "universidade_db".
+- "version": (String) Versão do arquivo de modelo. Ex: "1.0".
+- "model": (Object) Objeto principal que contém a estrutura de dados específica de cada fase da modelagem. O conteúdo deste objeto varia conforme a etapa.
+
+
+---------------------------------------------------
+2. Arquivo 1: Modelo Conceitual (conceptual.json)
+---------------------------------------------------
+Propósito: Representar a visão de mais alto nível do banco de dados. Foca nas regras de negócio, identificando as principais "coisas" (entidades) e como elas se relacionam, sem se preocupar com detalhes técnicos de implementação.
+
+Estrutura do objeto "model":
+- "type": (String) Valor fixo: "Conceptual".
+- "entities": (Array de Objetos) Lista das entidades do sistema.
+    - Cada objeto "entity" contém:
+        - "name": (String) Nome da entidade. Ex: "Aluno".
+        - "attributes": (Array de Objetos) Lista dos atributos (características) da entidade.
+            - "name": (String) Nome do atributo. Ex: "Nome", "Email".
+            - "isIdentifier": (Boolean) Opcional. Indica se este atributo é o principal identificador da entidade (futuro candidato a chave primária). Ex: true para "ID_Aluno".
+
+- "relationships": (Array de Objetos) Lista dos relacionamentos entre as entidades.
+    - Cada objeto "relationship" contém:
+        - "from": (String) Nome da entidade de origem da relação.
+        - "to": (String) Nome da entidade de destino.
+        - "cardinality": (String) Cardinalidade da relação. Valores possíveis: "1:1", "1:N", "N:M".
+        - "description": (String) Verbo ou frase que descreve a ação da relação. Ex: "se matricula em".
+        - "attributes": (Array de Objetos) Opcional. Lista de atributos que pertencem ao próprio relacionamento. Usado principalmente em cardinalidades N:M. Ex: "DataMatricula".
+
+
+------------------------------------------------
+3. Arquivo 2: Modelo Lógico (logical.json)
+------------------------------------------------
+Propósito: Traduzir o modelo conceitual abstrato em uma estrutura de tabelas e colunas. Nesta fase, os relacionamentos são resolvidos através de chaves primárias e estrangeiras. O modelo ainda é independente de um SGBD (Sistema de Gerenciamento de Banco de Dados) específico.
+
+Estrutura do objeto "model":
+- "type": (String) Valor fixo: "Logical".
+- "tables": (Array de Objetos) Lista das tabelas do banco de dados. As entidades e os relacionamentos N:M do modelo anterior são convertidos em tabelas.
+    - Cada objeto "table" contém:
+        - "tableName": (String) Nome da tabela, geralmente em minúsculas e singular/plural padronizado. Ex: "aluno".
+        - "columns": (Array de Objetos) Lista das colunas da tabela.
+            - "columnName": (String) Nome da coluna. Ex: "id_aluno".
+            - "isPrimaryKey": (Boolean) Opcional. Indica se a coluna é a chave primária da tabela.
+            - "isForeignKey": (Boolean) Opcional. Indica se a coluna é uma chave estrangeira.
+            - "references": (Object) Opcional. Usado se "isForeignKey" for true. Descreve a tabela e a coluna que estão sendo referenciadas.
+                - "table": (String) A tabela estrangeira referenciada. Ex: "aluno".
+                - "column": (String) A coluna estrangeira referenciada. Ex: "id_aluno".
+
+
+-------------------------------------------------
+4. Arquivo 3: Modelo Físico (physical.json)
+-------------------------------------------------
+Propósito: Detalhar a implementação técnica do modelo lógico em um SGBD específico (neste caso, MySQL). Adiciona tipos de dados, restrições (constraints), índices e outras configurações físicas. Este arquivo contém toda a informação necessária para gerar o script SQL final.
+
+Estrutura do objeto "model":
+- "type": (String) Valor fixo: "Physical".
+- "targetEngine": (String) Nome do SGBD alvo. Ex: "MySQL".
+- "tables": (Array de Objetos) Lista das tabelas, agora com detalhes físicos.
+    - Cada objeto "table" contém:
+        - "tableName": (String) Nome da tabela.
+        - "engine": (String) Opcional. Motor de armazenamento a ser usado no SGBD. Ex: "InnoDB".
+        - "charset": (String) Opcional. Conjunto de caracteres da tabela. Ex: "utf8mb4".
+        - "columns": (Array de Objetos) Lista das colunas com todas as definições físicas.
+            - "columnName": (String) Nome da coluna.
+            - "dataType": (String) O tipo de dado da coluna no SGBD alvo. Ex: "INT", "VARCHAR(150)", "DATE", "DATETIME".
+            - "isPrimaryKey": (Boolean) Opcional.
+            - "isForeignKey": (Boolean) Opcional.
+            - "isNullable": (Boolean) Indica se a coluna pode ter valores nulos (true) ou não (false, gerando "NOT NULL").
+            - "isAutoIncrement": (Boolean) Opcional. Indica se a coluna deve ter autoincremento (gerando "AUTO_INCREMENT").
+            - "isUnique": (Boolean) Opcional. Indica se os valores na coluna devem ser únicos (gerando "UNIQUE").
+            - "references": (Object) Opcional. Similar ao modelo lógico, mas pode incluir regras de integridade referencial.
+                - "table": (String) Tabela referenciada.
+                - "column": (String) Coluna referenciada.
+                - "onDelete": (String) Opcional. Ação a ser tomada na exclusão. Ex: "CASCADE", "SET NULL".
+        - "primaryKey": (Array de Strings) Opcional. Usado para definir chaves primárias compostas, listando os nomes das colunas que a compõem. Ex: ["id_aluno", "id_curso"].

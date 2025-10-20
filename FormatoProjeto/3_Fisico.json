@@ -1,0 +1,44 @@
+{
+  "projectName": "SistemaUniversidade",
+  "databaseName": "universidade_db",
+  "version": "1.0",
+  "model": {
+    "type": "Physical",
+    "targetEngine": "MySQL",
+    "tables": [
+      {
+        "tableName": "aluno",
+        "engine": "InnoDB",
+        "charset": "utf8mb4",
+        "columns": [
+          { "columnName": "id_aluno", "dataType": "INT", "isPrimaryKey": true, "isAutoIncrement": true },
+          { "columnName": "nome", "dataType": "VARCHAR(150)", "isNullable": false },
+          { "columnName": "email", "dataType": "VARCHAR(100)", "isNullable": false, "isUnique": true },
+          { "columnName": "data_nascimento", "dataType": "DATE", "isNullable": true }
+        ]
+      },
+      {
+        "tableName": "curso",
+        "engine": "InnoDB",
+        "charset": "utf8mb4",
+        "columns": [
+          { "columnName": "id_curso", "dataType": "INT", "isPrimaryKey": true, "isAutoIncrement": true },
+          { "columnName": "nome_curso", "dataType": "VARCHAR(100)", "isNullable": false },
+          { "columnName": "carga_horaria", "dataType": "INT", "isNullable": true }
+        ]
+      },
+      {
+        "tableName": "matricula",
+        "engine": "InnoDB",
+        "charset": "utf8mb4",
+        "columns": [
+          { "columnName": "id_aluno", "dataType": "INT", "isForeignKey": true, "references": { "table": "aluno", "column": "id_aluno", "onDelete": "CASCADE" } },
+          { "columnName": "id_curso", "dataType": "INT", "isForeignKey": true, "references": { "table": "curso", "column": "id_curso", "onDelete": "CASCADE" } },
+          { "columnName": "data_matricula", "dataType": "DATETIME", "isNullable": false },
+          { "columnName": "status", "dataType": "VARCHAR(20)", "isNullable": false }
+        ],
+        "primaryKey": ["id_aluno", "id_curso"]
+      }
+    ]
+  }
+}
