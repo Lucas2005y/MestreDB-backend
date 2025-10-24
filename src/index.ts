@@ -1,3 +1,5 @@
+console.log('🚀 INICIANDO APLICAÇÃO - index.ts carregado');
+
 import 'reflect-metadata';
 import express from 'express';
 import dotenv from 'dotenv';
@@ -5,11 +7,16 @@ import dotenv from 'dotenv';
 // Load environment variables FIRST
 dotenv.config();
 
+console.log('🔧 Variáveis de ambiente carregadas');
+
 import { DatabaseInitializer } from './infrastructure/config/DatabaseInitializer';
 import { setupSwagger } from './infrastructure/config/swagger';
 import { errorHandler, notFoundHandler } from './presentation/middlewares/errorHandler';
 import { corsMiddleware } from './presentation/middlewares/cors';
+
+console.log('📋 Importando apiRoutes...');
 import apiRoutes from './presentation/routes';
+console.log('✅ apiRoutes importado');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -21,12 +28,16 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Request logging middleware
 app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+  const logMessage = `🌐 REQUISIÇÃO: ${req.method} ${req.url}`;
+  console.log(logMessage);
+  process.stdout.write(logMessage + '\n');
   next();
 });
 
 // Setup Swagger documentation
 setupSwagger(app);
+
+
 
 // API routes
 app.use('/api', apiRoutes);
@@ -59,6 +70,14 @@ const startServer = async (): Promise<void> => {
       console.log(`📚 Documentação: http://localhost:${PORT}/api-docs`);
       console.log(`🔗 API: http://localhost:${PORT}/api`);
       console.log(`🌍 Ambiente: ${process.env.NODE_ENV || 'development'}`);
+      
+      // Debug: Testar se as rotas estão funcionando
+      setTimeout(() => {
+        console.log('🔍 Testando rotas internas...');
+        // Simular uma requisição interna para verificar se as rotas estão funcionando
+        const req = { method: 'POST', url: '/api/auth/login', body: {} };
+        console.log('📝 Simulando requisição:', req);
+      }, 1000);
     });
   } catch (error) {
     console.error('❌ Falha ao iniciar servidor:', error);

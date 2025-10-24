@@ -1,7 +1,8 @@
 import { Request, Response } from 'express';
 import { UserUseCases } from '../../application/usecases/UserUseCases';
 import { UserRepository } from '../../infrastructure/repositories/UserRepository';
-import { CreateUserDTO, UpdateUserDTO } from '../../application/dtos/UserDTO';
+import { CreateUserDTO, UpdateUserDTO, UserResponseDTO } from '../../application/dtos/UserDTO';
+import { User } from '../../domain/entities/User';
 
 export class UserController {
   private userUseCases: UserUseCases;
@@ -9,6 +10,32 @@ export class UserController {
   constructor() {
     const userRepository = new UserRepository();
     this.userUseCases = new UserUseCases(userRepository);
+  }
+
+  // Método para remover senha de um usuário (aceita User ou UserResponseDTO)
+  private removePassword(user: User): Omit<User, 'password'>;
+  private removePassword(user: UserResponseDTO): UserResponseDTO;
+  private removePassword(user: User | UserResponseDTO): Omit<User, 'password'> | UserResponseDTO {
+    if ('password' in user) {
+      const { password, ...userWithoutPassword } = user;
+      return userWithoutPassword;
+    }
+    return user; // UserResponseDTO já não tem password
+  }
+
+  // Método para remover senhas de uma lista de usuários
+  private removePasswordsFromList(users: User[]): Omit<User, 'password'>[];
+  private removePasswordsFromList(users: UserResponseDTO[]): UserResponseDTO[];
+  private removePasswordsFromList(users: User[] | UserResponseDTO[]): Omit<User, 'password'>[] | UserResponseDTO[] {
+    if (users.length === 0) return users;
+    
+    // Se o primeiro item tem password, então são Users
+    if ('password' in users[0]) {
+      return (users as User[]).map(user => this.removePassword(user) as Omit<User, 'password'>);
+    } else {
+      // Se não tem password, então são UserResponseDTO
+      return users as UserResponseDTO[];
+    }
   }
 
   /**
@@ -115,16 +142,186 @@ export class UserController {
 
       const result = await this.userUseCases.getAllUsers(page, limit);
       
+      // Filtrar senhas dos usuários (super usuários não devem ver senhas)
+      const usersWithoutPasswords = this.removePasswordsFromList(result.users);
+      
       res.status(200).json({
         success: true,
         message: 'Usuários listados com sucesso',
-        data: result
+        data: {
+          users: usersWithoutPasswords,
+          total: result.total
+        }
       });
     } catch (error) {
       res.status(500).json({
         success: false,
         message: 'Erro interno do servidor'
       });
+    }
+  }
+
+  /**
+   * @swagger
+   * /usuarios/me:
+   *   get:
+   *     summary: Obter perfil do usuário logado
+   *     tags: [Usuários]
+   *     security:
+   *       - bearerAuth: []
+   *     responses:
+   *       200:
+   *         description: Perfil do usuário
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 success:
+   *                   type: boolean
+   *                 message:
+   *                   type: string
+   *                 data:
+   *                   type: object
+   *                   properties:
+   *                     id:
+   *                       type: number
+   *                     name:
+   *                       type: string
+   *                     email:
+   *                       type: string
+   *                     is_superuser:
+   *                       type: boolean
+   *                     created_at:
+   *                       type: string
+   *                     updated_at:
+   *                       type: string
+   *       401:
+   *         description: Não autenticado
+   */
+  async getMyProfile(req: Request, res: Response): Promise<void> {
+    try {
+      if (!req.user) {
+        res.status(401).json({
+          success: false,
+          message: 'Usuário não autenticado'
+        });
+        return;
+      }
+
+      const user = await this.userUseCases.getUserById(req.user.userId);
+      
+      if (!user) {
+        res.status(404).json({
+          success: false,
+          message: 'Usuário não encontrado'
+        });
+        return;
+      }
+
+      res.status(200).json({
+        success: true,
+        message: 'Perfil obtido com sucesso',
+        data: user // UserResponseDTO já não tem senha
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: 'Erro interno do servidor'
+      });
+    }
+  }
+
+  /**
+   * @swagger
+   * /usuarios/me:
+   *   put:
+   *     summary: Atualizar perfil do usuário logado
+   *     tags: [Usuários]
+   *     security:
+   *       - bearerAuth: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             properties:
+   *               name:
+   *                 type: string
+   *                 example: "João Silva Santos"
+   *               email:
+   *                 type: string
+   *                 format: email
+   *                 example: "joao.santos@email.com"
+   *               password:
+   *                 type: string
+   *                 minLength: 6
+   *                 example: "novaSenha123"
+   *     responses:
+   *       200:
+   *         description: Perfil atualizado com sucesso
+   *       400:
+   *         description: Dados inválidos
+   *       401:
+   *         description: Não autenticado
+   *       409:
+   *         description: Email já está em uso
+   */
+  async updateMyProfile(req: Request, res: Response): Promise<void> {
+    try {
+      if (!req.user) {
+        res.status(401).json({
+          success: false,
+          message: 'Usuário não autenticado'
+        });
+        return;
+      }
+
+      // Usuário não pode alterar is_superuser no próprio perfil
+      if (req.body.is_superuser !== undefined) {
+        res.status(403).json({
+          success: false,
+          message: 'Você não pode alterar seu nível de privilégio'
+        });
+        return;
+      }
+
+      const updateData: UpdateUserDTO = req.body;
+      const updatedUser = await this.userUseCases.updateUser(req.user.userId, updateData);
+      
+      if (!updatedUser) {
+        res.status(404).json({
+          success: false,
+          message: 'Usuário não encontrado'
+        });
+        return;
+      }
+
+      res.status(200).json({
+        success: true,
+        message: 'Perfil atualizado com sucesso',
+        data: updatedUser // UserResponseDTO já não tem senha
+      });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Erro interno do servidor';
+      
+      if (errorMessage.includes('Email já está em uso')) {
+        res.status(409).json({
+          success: false,
+          message: errorMessage
+        });
+      } else if (errorMessage.includes('inválido')) {
+        res.status(400).json({
+          success: false,
+          message: errorMessage
+        });
+      } else {
+        res.status(500).json({
+          success: false,
+          message: 'Erro interno do servidor'
+        });
+      }
     }
   }
 
@@ -169,10 +366,11 @@ export class UserController {
         return;
       }
 
+      // Verificar se deve filtrar senha
       res.status(200).json({
         success: true,
         message: 'Usuário encontrado',
-        data: user
+        data: user // UserResponseDTO já não tem senha
       });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Erro interno do servidor';
