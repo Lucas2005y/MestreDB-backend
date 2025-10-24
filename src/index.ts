@@ -1,63 +1,99 @@
+import 'reflect-metadata';
 import express from 'express';
-import cors from 'cors';
-import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 
-// Load environment variables
+// Load environment variables FIRST
 dotenv.config();
+
+import { DatabaseInitializer } from './infrastructure/config/DatabaseInitializer';
+import { setupSwagger } from './infrastructure/config/swagger';
+import { errorHandler, notFoundHandler } from './presentation/middlewares/errorHandler';
+import { corsMiddleware } from './presentation/middlewares/cors';
+import apiRoutes from './presentation/routes';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/mestredb';
 
 // Middleware
-app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:3000'
-}));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(corsMiddleware);
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Basic health check route
-app.get('/health', (req, res) => {
+// Request logging middleware
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+  next();
+});
+
+// Setup Swagger documentation
+setupSwagger(app);
+
+// API routes
+app.use('/api', apiRoutes);
+
+// Root route
+app.get('/', (req, res) => {
   res.status(200).json({
-    status: 'OK',
-    message: 'MestreDB Backend is running',
-    timestamp: new Date().toISOString()
+    success: true,
+    message: 'Bem-vindo à API MestreDB',
+    version: '1.0.0',
+    documentation: '/api-docs',
+    api: '/api',
+    health: '/api/health'
   });
 });
 
-// Database connection
-const connectDatabase = async (): Promise<void> => {
-  try {
-    await mongoose.connect(MONGODB_URI);
-    console.log('✅ Connected to MongoDB successfully');
-  } catch (error) {
-    console.error('❌ MongoDB connection error:', error);
-    process.exit(1);
-  }
-};
+// Error handling middleware (deve ser o último)
+app.use(notFoundHandler);
+app.use(errorHandler);
 
 // Start server
 const startServer = async (): Promise<void> => {
   try {
-    await connectDatabase();
+    // Initialize database
+    await DatabaseInitializer.initialize();
     
     app.listen(PORT, () => {
-      console.log(`🚀 Server is running on port ${PORT}`);
-      console.log(`📊 Health check available at: http://localhost:${PORT}/health`);
+      console.log(`🚀 Servidor rodando na porta ${PORT}`);
+      console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
+      console.log(`📚 Documentação: http://localhost:${PORT}/api-docs`);
+      console.log(`🔗 API: http://localhost:${PORT}/api`);
+      console.log(`🌍 Ambiente: ${process.env.NODE_ENV || 'development'}`);
     });
   } catch (error) {
-    console.error('❌ Failed to start server:', error);
+    console.error('❌ Falha ao iniciar servidor:', error);
     process.exit(1);
   }
 };
 
 // Handle graceful shutdown
-process.on('SIGINT', async () => {
-  console.log('\n🛑 Shutting down server...');
-  await mongoose.connection.close();
-  console.log('✅ Database connection closed');
-  process.exit(0);
+const gracefulShutdown = async (signal: string): Promise<void> => {
+  console.log(`\n🛑 Recebido sinal ${signal}. Encerrando servidor...`);
+  
+  try {
+    await DatabaseInitializer.close();
+    console.log('✅ Servidor encerrado com sucesso');
+    process.exit(0);
+  } catch (error) {
+    console.error('❌ Erro ao encerrar servidor:', error);
+    process.exit(1);
+  }
+};
+
+// Handle different termination signals
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (error) => {
+  console.error('❌ Uncaught Exception:', error);
+  process.exit(1);
+});
+
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('❌ Unhandled Rejection at:', promise, 'reason:', reason);
+  process.exit(1);
 });
 
 // Start the application

@@ -1,0 +1,98 @@
+### MestreDB API - Testes HTTP
+### Configuração da URL base
+@baseUrl = http://localhost:3000
+
+### 1. Health Check
+GET {{baseUrl}}/api/health
+
+### 2. API Root
+GET {{baseUrl}}/api
+
+### 3. Documentação Swagger
+GET {{baseUrl}}/api-docs
+
+### 4. Criar Usuário
+POST {{baseUrl}}/api/usuarios
+Content-Type: application/json
+
+{
+  "name": "João Silva",
+  "email": "joao@exemplo.com",
+  "password": "123456",
+  "is_superuser": false
+}
+
+### 5. Criar Usuário Administrador
+POST {{baseUrl}}/api/usuarios
+Content-Type: application/json
+
+{
+  "name": "Maria Admin",
+  "email": "maria@admin.com",
+  "password": "admin123",
+  "is_superuser": true
+}
+
+### 6. Listar Usuários (página 1, 10 por página)
+GET {{baseUrl}}/api/usuarios?page=1&limit=10
+
+### 7. Listar Usuários (página 1, 5 por página)
+GET {{baseUrl}}/api/usuarios?page=1&limit=5
+
+### 8. Buscar Usuário por ID (ID = 1 - Administrador padrão)
+GET {{baseUrl}}/api/usuarios/1
+
+### 9. Buscar Usuário por ID (ID = 2)
+GET {{baseUrl}}/api/usuarios/2
+
+### 10. Atualizar Usuário
+PUT {{baseUrl}}/api/usuarios/2
+Content-Type: application/json
+
+{
+  "name": "João Silva Atualizado",
+  "email": "joao.novo@exemplo.com"
+}
+
+### 11. Atualizar Usuário (apenas nome)
+PUT {{baseUrl}}/api/usuarios/2
+Content-Type: application/json
+
+{
+  "name": "João Santos"
+}
+
+### 12. Deletar Usuário
+DELETE {{baseUrl}}/api/usuarios/3
+
+### 13. Teste de erro - Buscar usuário inexistente
+GET {{baseUrl}}/api/usuarios/999
+
+### 14. Teste de erro - Criar usuário com email duplicado
+POST {{baseUrl}}/api/usuarios
+Content-Type: application/json
+
+{
+  "name": "Teste Duplicado",
+  "email": "admin@mestredb.com",
+  "password": "123456"
+}
+
+### 15. Teste de erro - Criar usuário sem dados obrigatórios
+POST {{baseUrl}}/api/usuarios
+Content-Type: application/json
+
+{
+  "name": "Teste Incompleto"
+}
+
+### 16. Teste de erro - Atualizar usuário inexistente
+PUT {{baseUrl}}/api/usuarios/999
+Content-Type: application/json
+
+{
+  "name": "Usuário Inexistente"
+}
+
+### 17. Teste de erro - Deletar usuário inexistente
+DELETE {{baseUrl}}/api/usuarios/999
