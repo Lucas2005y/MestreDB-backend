@@ -5,10 +5,11 @@ import {
   requireSuperUser,
   requireOwnershipOrSuperUser,
   requireOwnershipOrSuperUserForModification,
-  requireSuperUserForDeletion,
+  requireOwnershipOrSuperUserForDeletion,
   requireSuperUserForListing,
   requireSuperUserForCreation
 } from '../middlewares/authorizationMiddleware';
+import { apiRateLimit, sensitiveOperationsRateLimit } from '../middlewares/rateLimitMiddleware';
 
 const router = Router();
 const userController = new UserController();
@@ -130,23 +131,23 @@ const userController = new UserController();
 
 // Rotas para usuários
 
-// Rota para perfil próprio (deve vir antes de /:id para não conflitar)
-router.get('/me', authenticateToken, userController.getMyProfile.bind(userController));
-router.put('/me', authenticateToken, userController.updateMyProfile.bind(userController));
+// Rotas específicas do usuário logado (devem vir antes das rotas com parâmetros)
+router.get('/me', authenticateToken, apiRateLimit, userController.getMyProfile.bind(userController));
+router.put('/me', authenticateToken, apiRateLimit, userController.updateMyProfile.bind(userController));
 
-// Criar usuário - apenas super usuários podem criar outros usuários
-router.post('/', authenticateToken, requireSuperUserForCreation, userController.createUser.bind(userController));
+// Rotas administrativas
+router.post('/', authenticateToken, requireSuperUserForCreation, sensitiveOperationsRateLimit, userController.createUser.bind(userController));
 
-// Listar todos os usuários - apenas super usuários
-router.get('/', authenticateToken, requireSuperUserForListing, userController.getAllUsers.bind(userController));
+// Rotas de consulta
+router.get('/', authenticateToken, requireSuperUserForListing, apiRateLimit, userController.getAllUsers.bind(userController));
 
-// Buscar usuário por ID - usuário pode ver próprio perfil ou super usuário pode ver qualquer um
-router.get('/:id', authenticateToken, requireOwnershipOrSuperUser, userController.getUserById.bind(userController));
+// Rotas com parâmetros (devem vir por último)
+router.get('/:id', authenticateToken, requireOwnershipOrSuperUser, apiRateLimit, userController.getUserById.bind(userController));
 
-// Atualizar usuário - usuário pode atualizar próprio perfil ou super usuário pode atualizar qualquer um
-router.put('/:id', authenticateToken, requireOwnershipOrSuperUserForModification, userController.updateUser.bind(userController));
+// Rotas de modificação
+router.put('/:id', authenticateToken, requireOwnershipOrSuperUserForModification, sensitiveOperationsRateLimit, userController.updateUser.bind(userController));
 
-// Deletar usuário - apenas super usuários podem deletar (mas não a si mesmos)
-router.delete('/:id', authenticateToken, requireSuperUserForDeletion, userController.deleteUser.bind(userController));
+// Rotas de exclusão
+router.delete('/:id', authenticateToken, requireOwnershipOrSuperUserForDeletion, sensitiveOperationsRateLimit, userController.deleteUser.bind(userController));
 
 export default router;

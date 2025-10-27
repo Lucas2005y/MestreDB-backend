@@ -1,10 +1,17 @@
 import { IUserRepository } from '../../domain/interfaces/IUserRepository';
 import * as bcrypt from 'bcrypt';
-import { sign, verify, JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
+import { sign, verify, JsonWebTokenError, TokenExpiredError, SignOptions } from 'jsonwebtoken';
 
 export interface LoginDTO {
   email: string;
   password: string;
+}
+
+export interface RegisterDTO {
+  name: string;
+  email: string;
+  password: string;
+  is_superuser: boolean;
 }
 
 export interface AuthResponse {
@@ -72,8 +79,8 @@ export class AuthUseCases {
       type: 'refresh'
     };
 
-    const token = sign(accessTokenPayload, this.JWT_SECRET as string);
-     const refreshToken = sign(refreshTokenPayload, this.JWT_SECRET as string);
+    const token = sign(accessTokenPayload, this.JWT_SECRET as string, { expiresIn: this.JWT_EXPIRES_IN } as SignOptions);
+    const refreshToken = sign(refreshTokenPayload, this.JWT_SECRET as string, { expiresIn: this.REFRESH_TOKEN_EXPIRES_IN } as SignOptions);
 
     return {
       token,
@@ -83,6 +90,66 @@ export class AuthUseCases {
         name: user.name,
         email: user.email,
         is_superuser: user.is_superuser
+      }
+    };
+  }
+
+  async register(registerData: RegisterDTO): Promise<AuthResponse> {
+    const { name, email, password, is_superuser } = registerData;
+
+    // Validar dados de entrada
+    if (!name || !email || !password) {
+      throw new Error('Nome, email e senha são obrigatórios');
+    }
+
+    if (password.length < 8) {
+      throw new Error('Senha deve ter pelo menos 8 caracteres');
+    }
+
+    // Verificar se o email já existe
+    const existingUser = await this.userRepository.findByEmail(email);
+    if (existingUser) {
+      throw new Error('Email já existe');
+    }
+
+    // Hash da senha
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+    // Criar usuário
+    const newUser = await this.userRepository.create({
+      name,
+      email,
+      password: hashedPassword,
+      is_superuser
+    });
+
+    // Gerar tokens
+    const accessTokenPayload: TokenPayload = {
+      userId: newUser.id,
+      email: newUser.email,
+      is_superuser: newUser.is_superuser,
+      type: 'access'
+    };
+
+    const refreshTokenPayload: TokenPayload = {
+      userId: newUser.id,
+      email: newUser.email,
+      is_superuser: newUser.is_superuser,
+      type: 'refresh'
+    };
+
+    const accessToken = sign(accessTokenPayload, this.JWT_SECRET as string, { expiresIn: this.JWT_EXPIRES_IN } as SignOptions);
+    const refreshToken = sign(refreshTokenPayload, this.JWT_SECRET as string, { expiresIn: this.REFRESH_TOKEN_EXPIRES_IN } as SignOptions);
+
+    return {
+      token: accessToken,
+      refreshToken,
+      user: {
+        id: newUser.id,
+        name: newUser.name,
+        email: newUser.email,
+        is_superuser: newUser.is_superuser
       }
     };
   }
@@ -137,8 +204,8 @@ export class AuthUseCases {
         type: 'refresh'
       };
 
-      const newToken = sign(accessTokenPayload, this.JWT_SECRET as string);
-       const newRefreshToken = sign(refreshTokenPayload, this.JWT_SECRET as string);
+      const newToken = sign(accessTokenPayload, this.JWT_SECRET as string, { expiresIn: this.JWT_EXPIRES_IN } as SignOptions);
+      const newRefreshToken = sign(refreshTokenPayload, this.JWT_SECRET as string, { expiresIn: this.REFRESH_TOKEN_EXPIRES_IN } as SignOptions);
 
       return {
         token: newToken,

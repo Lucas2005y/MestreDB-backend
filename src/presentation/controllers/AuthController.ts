@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { AuthUseCases, LoginDTO } from '../../application/usecases/AuthUseCases';
 import { UserRepository } from '../../infrastructure/repositories/UserRepository';
+import { AuditLogger } from '../../shared/utils/auditLogger';
 
 interface LoginRequestDTO {
   email: string;
@@ -9,6 +10,12 @@ interface LoginRequestDTO {
 
 interface RefreshTokenRequestDTO {
   refreshToken: string;
+}
+
+interface RegisterRequestDTO {
+  name: string;
+  email: string;
+  password: string;
 }
 
 export class AuthController {
@@ -107,6 +114,12 @@ export class AuthController {
       // Realizar login
       const authResponse = await this.authUseCases.login({ email, password });
 
+      // Log de auditoria para login bem-sucedido
+      AuditLogger.log(req, 'LOGIN', 'AUTH', authResponse.user.id, true, {
+        userEmail: email,
+        userId: authResponse.user.id
+      });
+
       res.status(200).json({
         message: 'Login realizado com sucesso',
         ...authResponse
@@ -115,14 +128,168 @@ export class AuthController {
       const errorMessage = error instanceof Error ? error.message : 'Erro interno do servidor';
       
       if (errorMessage.includes('Credenciais inválidas')) {
+        // Log de auditoria para tentativa de login falhada
+        AuditLogger.log(req, 'LOGIN_FAILED', 'AUTH', undefined, false, {
+          userEmail: req.body?.email,
+          reason: 'Credenciais inválidas'
+        });
+
         res.status(401).json({
           error: 'Credenciais inválidas',
           message: 'Email ou senha incorretos'
         });
       } else {
+        // Log de auditoria para erro interno
+        AuditLogger.log(req, 'LOGIN_ERROR', 'AUTH', undefined, false, {
+          userEmail: req.body?.email,
+          error: errorMessage
+        });
+
         res.status(500).json({
           error: 'Erro interno',
           message: errorMessage
+        });
+      }
+    }
+  };
+
+  /**
+   * @swagger
+   * /auth/register:
+   *   post:
+   *     summary: Registrar nova conta de usuário (público)
+   *     description: Permite registro público de usuários normais. Superusuários só podem ser criados por administradores.
+   *     tags: [Autenticação]
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required:
+   *               - name
+   *               - email
+   *               - password
+   *             properties:
+   *               name:
+   *                 type: string
+   *                 minLength: 2
+   *                 example: João Silva
+   *               email:
+   *                 type: string
+   *                 format: email
+   *                 example: joao@exemplo.com
+   *               password:
+   *                 type: string
+   *                 minLength: 8
+   *                 example: minhasenha123
+   *     responses:
+   *       201:
+   *         description: Usuário registrado com sucesso
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 message:
+   *                   type: string
+   *                   example: Usuário registrado com sucesso
+   *                 user:
+   *                   type: object
+   *                   properties:
+   *                     id:
+   *                       type: string
+   *                       example: "1"
+   *                     name:
+   *                       type: string
+   *                       example: João Silva
+   *                     email:
+   *                       type: string
+   *                       example: joao@exemplo.com
+   *                     is_superuser:
+   *                       type: boolean
+   *                       example: false
+   *       400:
+   *         description: Dados inválidos
+   *       403:
+   *         description: Tentativa de definir privilégios de superusuário
+   *       409:
+   *         description: Email já cadastrado
+   *       500:
+   *         description: Erro interno do servidor
+   */
+  register = async (req: Request, res: Response): Promise<void> => {
+    try {
+      console.log('📝 Tentativa de registro:', { email: req.body.email, name: req.body.name });
+      
+      const { name, email, password }: RegisterRequestDTO = req.body;
+
+      // Validações básicas
+      if (!name || !email || !password) {
+        res.status(400).json({
+          error: 'Dados incompletos',
+          message: 'Nome, email e senha são obrigatórios'
+        });
+        return;
+      }
+
+      // SEGURANÇA: Verificar se tentaram enviar is_superuser
+      if (req.body.is_superuser !== undefined) {
+        res.status(403).json({
+          error: 'Acesso negado',
+          message: 'Não é possível definir privilégios de superusuário no registro público'
+        });
+        return;
+      }
+
+      if (password.length < 8) {
+        res.status(400).json({
+          error: 'Senha inválida',
+          message: 'Senha deve ter pelo menos 8 caracteres'
+        });
+        return;
+      }
+
+      // Criar usuário através do use case
+      const result = await this.authUseCases.register({
+        name,
+        email,
+        password,
+        is_superuser: false // Usuários registrados publicamente não são super usuários
+      });
+
+      console.log('✅ Usuário registrado com sucesso:', { id: result.user.id, email: result.user.email });
+
+      res.status(201).json({
+        message: 'Usuário registrado com sucesso',
+        token: result.token,
+        refreshToken: result.refreshToken,
+        user: {
+          id: result.user.id,
+          name: result.user.name,
+          email: result.user.email,
+          is_superuser: result.user.is_superuser
+        }
+      });
+
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Erro interno do servidor';
+      console.error('❌ Erro no registro:', errorMessage);
+      
+      if (errorMessage.includes('já existe') || errorMessage.includes('already exists')) {
+        res.status(409).json({
+          error: 'Email já cadastrado',
+          message: 'Este email já está sendo usado por outro usuário'
+        });
+      } else if (errorMessage.includes('inválido') || errorMessage.includes('invalid')) {
+        res.status(400).json({
+          error: 'Dados inválidos',
+          message: errorMessage
+        });
+      } else {
+        res.status(500).json({
+          error: 'Erro interno',
+          message: 'Erro interno do servidor'
         });
       }
     }

@@ -2,18 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { AuthUseCases, TokenPayload } from '../../application/usecases/AuthUseCases';
 import { UserRepository } from '../../infrastructure/repositories/UserRepository';
 
-// Estender a interface Request para incluir informações do usuário
-declare global {
-  namespace Express {
-    interface Request {
-      user?: {
-        userId: number;
-        email: string;
-        is_superuser: boolean;
-      };
-    }
-  }
-}
+// Tipos importados do arquivo de declaração global
 
 // Instância dos use cases para autenticação
 const userRepository = new UserRepository();
@@ -50,6 +39,7 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
     // Adicionar informações do usuário ao request
     req.user = {
       userId: decoded.userId,
+      id: decoded.userId, // Alias para compatibilidade
       email: decoded.email,
       is_superuser: decoded.is_superuser
     };
@@ -80,6 +70,7 @@ export const optionalAuth = async (req: Request, res: Response, next: NextFuncti
           const decoded = await authUseCases.validateToken(token);
           req.user = {
             userId: decoded.userId,
+            id: decoded.userId, // Alias para compatibilidade
             email: decoded.email,
             is_superuser: decoded.is_superuser
           };

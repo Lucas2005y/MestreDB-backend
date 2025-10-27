@@ -13,6 +13,7 @@ import { DatabaseInitializer } from './infrastructure/config/DatabaseInitializer
 import { setupSwagger } from './infrastructure/config/swagger';
 import { errorHandler, notFoundHandler } from './presentation/middlewares/errorHandler';
 import { corsMiddleware } from './presentation/middlewares/cors';
+import { generalRateLimit } from './presentation/middlewares/rateLimitMiddleware';
 
 console.log('📋 Importando apiRoutes...');
 import apiRoutes from './presentation/routes';
@@ -23,6 +24,7 @@ const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(corsMiddleware);
+app.use(generalRateLimit); // Rate limiting geral para toda a aplicação
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 

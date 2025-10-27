@@ -95,7 +95,7 @@ export const requireOwnershipOrSuperUserForModification = (req: Request, res: Re
 };
 
 // Middleware para verificar se o usuário pode deletar outro usuário
-export const requireSuperUserForDeletion = (req: Request, res: Response, next: NextFunction): void => {
+export const requireOwnershipOrSuperUserForDeletion = (req: Request, res: Response, next: NextFunction): void => {
   if (!req.user) {
     res.status(401).json({
       error: 'Não autenticado',
@@ -105,23 +105,44 @@ export const requireSuperUserForDeletion = (req: Request, res: Response, next: N
   }
 
   const targetUserId = parseInt(req.params.id);
-  const currentUserId = req.user.userId;
+  const currentUserId = parseInt(String(req.user.userId)); // Garantir conversão para number
   const isSuperUser = req.user.is_superuser;
 
-  // Apenas super usuários podem deletar usuários
-  if (!isSuperUser) {
-    res.status(403).json({
-      error: 'Acesso negado',
-      message: 'Apenas super usuários podem deletar usuários'
+  // Validação adicional para garantir que os IDs são números válidos
+  if (isNaN(targetUserId)) {
+    res.status(400).json({
+      error: 'ID inválido',
+      message: 'O ID do usuário deve ser um número válido'
     });
     return;
   }
 
-  // Super usuário não pode deletar a si mesmo
-  if (targetUserId === currentUserId) {
+  if (!currentUserId || isNaN(currentUserId)) {
+    res.status(401).json({
+      error: 'Token inválido',
+      message: 'Token de autenticação não contém ID de usuário válido'
+    });
+    return;
+  }
+
+  // Super usuário pode deletar qualquer usuário (exceto a si mesmo)
+  if (isSuperUser) {
+    if (targetUserId === currentUserId) {
+      res.status(403).json({
+        error: 'Operação não permitida',
+        message: 'Você não pode deletar sua própria conta'
+      });
+      return;
+    }
+    next();
+    return;
+  }
+
+  // Usuário normal só pode deletar sua própria conta
+  if (targetUserId !== currentUserId) {
     res.status(403).json({
-      error: 'Operação não permitida',
-      message: 'Você não pode deletar sua própria conta'
+      error: 'Acesso negado',
+      message: 'Você só pode deletar sua própria conta'
     });
     return;
   }

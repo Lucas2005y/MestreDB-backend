@@ -2,6 +2,10 @@
 ### Configuração da URL base
 @baseUrl = http://localhost:3000
 
+### ========================================
+### TESTES DE INFRAESTRUTURA
+### ========================================
+
 ### 1. Health Check
 GET {{baseUrl}}/api/health
 
@@ -11,20 +15,123 @@ GET {{baseUrl}}/api
 ### 3. Documentação Swagger
 GET {{baseUrl}}/api-docs
 
-### 4. Criar Usuário
+### ========================================
+### TESTES DE AUTENTICAÇÃO
+### ========================================
+
+### 4. Login - Usuário Admin
+# @name loginAdmin
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@mestredb.com",
+  "password": "admin123"
+}
+
+### 5. Login - Credenciais Inválidas
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@mestredb.com",
+  "password": "senhaerrada"
+}
+
+### 6. Login - Email Inexistente
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "inexistente@teste.com",
+  "password": "123456"
+}
+
+### 7. Login - Dados Incompletos
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@mestredb.com"
+}
+
+### 8. Obter Informações do Usuário Logado (ME)
+# Primeiro faça o login acima e copie o token
+GET {{baseUrl}}/api/auth/me
+Authorization: Bearer SEU_TOKEN_AQUI
+
+### 9. Refresh Token
+# Use o refreshToken obtido no login
+POST {{baseUrl}}/api/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "SEU_REFRESH_TOKEN_AQUI"
+}
+
+### 10. Logout (Requer Autenticação)
+POST {{baseUrl}}/api/auth/logout
+Authorization: Bearer SEU_TOKEN_AQUI
+
+### 11. Registro Público de Usuário (SEM Autenticação)
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "Usuário Público",
+  "email": "publico@exemplo.com",
+  "password": "12345678"
+}
+
+### 12. Registro Público - Email já existe (Erro 409)
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "Outro Usuário",
+  "email": "admin@mestredb.com",
+  "password": "12345678"
+}
+
+### 13. Registro Público - Senha muito curta (Erro 400)
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "Usuário Teste",
+  "email": "teste@exemplo.com",
+  "password": "123"
+}
+
+### 14. Registro Público - Dados incompletos (Erro 400)
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "Usuário Incompleto",
+  "email": "incompleto@exemplo.com"
+}
+
+### ========================================
+### TESTES DE USUÁRIOS (COM AUTENTICAÇÃO)
+### ========================================
+
+### 15. Criar Usuário (Requer Autenticação de Admin)
 POST {{baseUrl}}/api/usuarios
 Content-Type: application/json
+Authorization: Bearer SEU_TOKEN_AQUI
 
 {
   "name": "João Silva",
   "email": "joao@exemplo.com",
-  "password": "123456",
+  "password": "12345678",
   "is_superuser": false
 }
 
-### 5. Criar Usuário Administrador
+### 16. Criar Usuário Administrador (Requer Autenticação de Admin)
 POST {{baseUrl}}/api/usuarios
 Content-Type: application/json
+Authorization: Bearer SEU_TOKEN_AQUI
 
 {
   "name": "Maria Admin",
@@ -33,66 +140,100 @@ Content-Type: application/json
   "is_superuser": true
 }
 
-### 6. Listar Usuários (página 1, 10 por página)
+### 17. Listar Usuários (Requer Autenticação de Admin)
 GET {{baseUrl}}/api/usuarios?page=1&limit=10
+Authorization: Bearer SEU_TOKEN_AQUI
 
-### 7. Listar Usuários (página 1, 5 por página)
+### 18. Listar Usuários com Paginação
 GET {{baseUrl}}/api/usuarios?page=1&limit=5
+Authorization: Bearer SEU_TOKEN_AQUI
 
-### 8. Buscar Usuário por ID (ID = 1 - Administrador padrão)
+### 19. Buscar Usuário por ID (ID = 1 - Administrador padrão)
 GET {{baseUrl}}/api/usuarios/1
+Authorization: Bearer SEU_TOKEN_AQUI
 
-### 9. Buscar Usuário por ID (ID = 2)
+### 20. Buscar Usuário por ID (ID = 2)
 GET {{baseUrl}}/api/usuarios/2
+Authorization: Bearer SEU_TOKEN_AQUI
 
-### 10. Atualizar Usuário
+### 21. Atualizar Usuário (Requer Autenticação)
 PUT {{baseUrl}}/api/usuarios/2
 Content-Type: application/json
+Authorization: Bearer SEU_TOKEN_AQUI
 
 {
   "name": "João Silva Atualizado",
   "email": "joao.novo@exemplo.com"
 }
 
-### 11. Atualizar Usuário (apenas nome)
+### 22. Atualizar Usuário (apenas nome)
 PUT {{baseUrl}}/api/usuarios/2
 Content-Type: application/json
+Authorization: Bearer SEU_TOKEN_AQUI
 
 {
-  "name": "João Santos"
+  "name": "João Silva Novo Nome"
 }
 
-### 12. Deletar Usuário
-DELETE {{baseUrl}}/api/usuarios/3
+### 23. Deletar Usuário (Usuário pode deletar própria conta ou Admin pode deletar outras)
+DELETE {{baseUrl}}/api/usuarios/2
+Authorization: Bearer SEU_TOKEN_AQUI
 
-### 13. Teste de erro - Buscar usuário inexistente
+### ========================================
+### TESTES DE ERRO E VALIDAÇÃO
+### ========================================
+
+### 24. Teste sem Autenticação - Listar Usuários
+GET {{baseUrl}}/api/usuarios
+
+### 25. Teste sem Autenticação - Criar Usuário
+POST {{baseUrl}}/api/usuarios
+Content-Type: application/json
+
+{
+  "name": "Teste Sem Auth",
+  "email": "teste@sem.auth",
+  "password": "12345678"
+}
+
+### 26. Teste com Token Inválido
+GET {{baseUrl}}/api/usuarios
+Authorization: Bearer token_invalido_aqui
+
+### 27. Buscar usuário inexistente
 GET {{baseUrl}}/api/usuarios/999
+Authorization: Bearer SEU_TOKEN_AQUI
 
-### 14. Teste de erro - Criar usuário com email duplicado
+### 28. Criar usuário com email duplicado (Admin)
 POST {{baseUrl}}/api/usuarios
 Content-Type: application/json
+Authorization: Bearer SEU_TOKEN_AQUI
 
 {
-  "name": "Teste Duplicado",
+  "name": "Usuário Duplicado",
   "email": "admin@mestredb.com",
-  "password": "123456"
+  "password": "12345678",
+  "is_superuser": false
 }
 
-### 15. Teste de erro - Criar usuário sem dados obrigatórios
+### 29. Criar usuário sem dados obrigatórios (Admin)
 POST {{baseUrl}}/api/usuarios
 Content-Type: application/json
+Authorization: Bearer SEU_TOKEN_AQUI
 
 {
-  "name": "Teste Incompleto"
+  "name": "Usuário Incompleto"
 }
 
-### 16. Teste de erro - Atualizar usuário inexistente
+### 30. Atualizar usuário inexistente
 PUT {{baseUrl}}/api/usuarios/999
 Content-Type: application/json
+Authorization: Bearer SEU_TOKEN_AQUI
 
 {
   "name": "Usuário Inexistente"
 }
 
-### 17. Teste de erro - Deletar usuário inexistente
+### 31. Deletar usuário inexistente
 DELETE {{baseUrl}}/api/usuarios/999
+Authorization: Bearer SEU_TOKEN_AQUI

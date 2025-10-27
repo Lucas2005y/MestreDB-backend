@@ -135,14 +135,26 @@ A documentação da API está disponível via Swagger UI:
 
 ### Endpoints principais:
 
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| GET | `/api/health` | Health check da API |
-| POST | `/api/usuarios` | Criar novo usuário |
-| GET | `/api/usuarios` | Listar usuários (paginado) |
-| GET | `/api/usuarios/:id` | Buscar usuário por ID |
-| PUT | `/api/usuarios/:id` | Atualizar usuário |
-| DELETE | `/api/usuarios/:id` | Excluir usuário |
+#### 🔐 Autenticação (Público):
+| Método | Endpoint | Descrição | Autenticação |
+|--------|----------|-----------|--------------|
+| POST | `/api/auth/register` | 🆕 Registro público de usuário | ❌ Não requer |
+| POST | `/api/auth/login` | Login de usuário | ❌ Não requer |
+| POST | `/api/auth/refresh` | Renovar token de acesso | ❌ Não requer |
+| POST | `/api/auth/logout` | Logout de usuário | ✅ Requer token |
+| GET | `/api/auth/me` | Informações do usuário logado | ✅ Requer token |
+
+#### 👥 Gestão de Usuários:
+| Método | Endpoint | Descrição | Permissão |
+|--------|----------|-----------|-----------|
+| GET | `/api/health` | Health check da API | ❌ Público |
+| POST | `/api/usuarios` | Criar usuário (Admin) | 👑 Superusuário |
+| GET | `/api/usuarios` | Listar usuários | 👑 Superusuário |
+| GET | `/api/usuarios/:id` | Buscar usuário por ID | 👤 Próprio ou 👑 Admin |
+| PUT | `/api/usuarios/:id` | Atualizar usuário | 👤 Próprio ou 👑 Admin |
+| DELETE | `/api/usuarios/:id` | Excluir usuário | 👤 Próprio ou 👑 Admin* |
+
+**\* Superusuários não podem deletar a própria conta**
 
 ## 🗄️ Banco de Dados
 
@@ -235,13 +247,33 @@ curl -X GET "http://localhost:3000/api/usuarios?page=1&limit=10"
 curl -X GET http://localhost:3000/api/usuarios/1
 ```
 
+## ✨ Funcionalidades
+
+### 🆕 Sistema de Registro e Autenticação:
+- **Registro Público**: Qualquer pessoa pode criar uma conta via `/api/auth/register`
+- **Login/Logout**: Sistema completo de autenticação com JWT
+- **Refresh Token**: Renovação automática de tokens de acesso
+- **Auto-gestão**: Usuários podem gerenciar suas próprias contas
+
+### 👥 Sistema de Permissões:
+- **Usuários Normais**: Podem visualizar, editar e deletar apenas suas próprias contas
+- **Superusuários**: Podem gerenciar todas as contas (exceto deletar a própria)
+- **Proteção de Segurança**: Superusuários não podem deletar suas próprias contas
+
+### 🔐 Middlewares de Autorização:
+- `requireSuperUser`: Apenas superusuários
+- `requireOwnershipOrSuperUser`: Próprio usuário ou superusuário
+- `requireOwnershipOrSuperUserForModification`: Modificação de conta própria ou por admin
+- `requireOwnershipOrSuperUserForDeletion`: Deleção com proteção especial para admins
+
 ## 🔒 Segurança
 
 - Senhas são criptografadas usando bcrypt com salt rounds 12
 - Validação de entrada usando class-validator
 - Middleware de tratamento de erros
 - CORS configurável
-- Preparado para autenticação JWT
+- Autenticação JWT completa implementada
+- Sistema de refresh tokens para segurança aprimorada
 
 ## 🚀 Deploy
 

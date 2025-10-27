@@ -3,6 +3,21 @@ import { UserUseCases } from '../../application/usecases/UserUseCases';
 import { UserRepository } from '../../infrastructure/repositories/UserRepository';
 import { CreateUserDTO, UpdateUserDTO, UserResponseDTO } from '../../application/dtos/UserDTO';
 import { User } from '../../domain/entities/User';
+import { AuditLogger } from '../../shared/utils/auditLogger';
+
+// Extensão da interface Request para incluir informações do usuário
+declare global {
+  namespace Express {
+    interface Request {
+      user?: {
+        userId: number;
+        email: string;
+        is_superuser: boolean;
+        id: number;
+      };
+    }
+  }
+}
 
 export class UserController {
   private userUseCases: UserUseCases;
@@ -81,6 +96,13 @@ export class UserController {
     try {
       const userData: CreateUserDTO = req.body;
       const user = await this.userUseCases.createUser(userData);
+      
+      // Log de auditoria para criação de usuário
+      AuditLogger.log(req, 'CREATE_USER', 'USER', user.id, true, {
+        createdUserId: user.id,
+        createdUserEmail: user.email,
+        adminUserId: req.user?.id
+      });
       
       res.status(201).json({
         success: true,
@@ -522,6 +544,12 @@ export class UserController {
         });
         return;
       }
+
+      // Log de auditoria para exclusão de usuário
+      AuditLogger.log(req, 'DELETE_USER', 'USER', id, true, {
+        deletedUserId: id,
+        adminUserId: req.user?.id
+      });
 
       res.status(200).json({
         success: true,
