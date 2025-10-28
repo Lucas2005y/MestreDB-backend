@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import { UserUseCases } from '../../application/usecases/UserUseCases';
-import { UserRepository } from '../../infrastructure/repositories/UserRepository';
 import { CreateUserDTO, UpdateUserDTO, UserResponseDTO } from '../../application/dtos/UserDTO';
 import { User } from '../../domain/entities/User';
 import { AuditLogger } from '../../shared/utils/auditLogger';
@@ -22,9 +21,8 @@ declare global {
 export class UserController {
   private userUseCases: UserUseCases;
 
-  constructor() {
-    const userRepository = new UserRepository();
-    this.userUseCases = new UserUseCases(userRepository);
+  constructor(userUseCases: UserUseCases) {
+    this.userUseCases = userUseCases;
   }
 
   // Método para remover senha de um usuário (aceita User ou UserResponseDTO)

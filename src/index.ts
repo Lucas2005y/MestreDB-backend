@@ -14,6 +14,12 @@ import { setupSwagger } from './infrastructure/config/swagger';
 import { errorHandler, notFoundHandler } from './presentation/middlewares/errorHandler';
 import { corsMiddleware } from './presentation/middlewares/cors';
 import { generalRateLimit } from './presentation/middlewares/rateLimitMiddleware';
+import { configureServices } from './shared/container/ServiceRegistry';
+
+// Configure dependency injection BEFORE importing routes
+console.log('🔧 Configurando injeção de dependência...');
+configureServices();
+console.log('✅ Serviços configurados');
 
 console.log('📋 Importando apiRoutes...');
 import apiRoutes from './presentation/routes';

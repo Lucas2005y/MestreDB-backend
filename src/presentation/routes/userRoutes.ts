@@ -10,9 +10,10 @@ import {
   requireSuperUserForCreation
 } from '../middlewares/authorizationMiddleware';
 import { apiRateLimit, sensitiveOperationsRateLimit } from '../middlewares/rateLimitMiddleware';
+import { ControllerFactory } from '../../shared/container/ServiceRegistry';
 
 const router = Router();
-const userController = new UserController();
+const userController = ControllerFactory.createUserController();
 
 /**
  * @swagger
