@@ -14,6 +14,7 @@ import { PasswordService } from '../../application/services/PasswordService';
 import { TokenService } from '../../application/services/TokenService';
 import { ValidationService } from '../../application/services/ValidationService';
 import { TokenBlacklistService } from '../../application/services/TokenBlacklistService';
+import { RateLimitingService } from '../../application/services/RateLimitingService';
 
 // Símbolos para identificação dos serviços
 export const TYPES = {
@@ -25,6 +26,7 @@ export const TYPES = {
   TokenService: Symbol.for('TokenService'),
   ValidationService: Symbol.for('ValidationService'),
   TokenBlacklistService: Symbol.for('TokenBlacklistService'),
+  RateLimitingService: Symbol.for('RateLimitingService'),
   
   // Use Cases
   UserUseCases: Symbol.for('UserUseCases'),
@@ -67,6 +69,11 @@ export function configureServices(): void {
   container.registerSingleton<TokenBlacklistService>(
     TYPES.TokenBlacklistService,
     () => new TokenBlacklistService()
+  );
+
+  container.registerSingleton<RateLimitingService>(
+    TYPES.RateLimitingService,
+    () => new RateLimitingService()
   );
 
   // Registra os use cases como singleton
