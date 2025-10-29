@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { AuthUseCases } from '../../application/usecases/AuthUseCases';
 import { TokenPayload } from '../../application/services/TokenService';
+import { TokenBlacklistService } from '../../application/services/TokenBlacklistService';
 import { container } from '../../shared/container/DIContainer';
 import { TYPES } from '../../shared/container/ServiceRegistry';
 
@@ -8,6 +9,7 @@ import { TYPES } from '../../shared/container/ServiceRegistry';
 
 // Instância dos use cases para autenticação via DI
 const authUseCases = container.resolve<AuthUseCases>(TYPES.AuthUseCases);
+const tokenBlacklistService = container.resolve<TokenBlacklistService>(TYPES.TokenBlacklistService);
 
 // Middleware para verificar se o usuário está autenticado
 export const authenticateToken = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -30,6 +32,15 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
       res.status(401).json({
         error: 'Token inválido',
         message: 'Formato do token deve ser: Bearer <token>'
+      });
+      return;
+    }
+
+    // Verificar se o token está na blacklist
+    if (tokenBlacklistService.isBlacklisted(token)) {
+      res.status(401).json({
+        error: 'Token inválido',
+        message: 'Token foi invalidado. Faça login novamente.'
       });
       return;
     }
@@ -68,13 +79,16 @@ export const optionalAuth = async (req: Request, res: Response, next: NextFuncti
 
       if (token) {
         try {
-          const decoded = await authUseCases.validateToken(token);
-          req.user = {
-            userId: decoded.userId,
-            id: decoded.userId, // Alias para compatibilidade
-            email: decoded.email,
-            is_superuser: decoded.is_superuser
-          };
+          // Verificar se o token está na blacklist
+          if (!tokenBlacklistService.isBlacklisted(token)) {
+            const decoded = await authUseCases.validateToken(token);
+            req.user = {
+              userId: decoded.userId,
+              id: decoded.userId, // Alias para compatibilidade
+              email: decoded.email,
+              is_superuser: decoded.is_superuser
+            };
+          }
         } catch (error) {
           // Ignora erros de token em auth opcional
         }

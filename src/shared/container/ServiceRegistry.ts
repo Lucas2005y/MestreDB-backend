@@ -13,6 +13,7 @@ import { IUserRepository } from '../../domain/interfaces/IUserRepository';
 import { PasswordService } from '../../application/services/PasswordService';
 import { TokenService } from '../../application/services/TokenService';
 import { ValidationService } from '../../application/services/ValidationService';
+import { TokenBlacklistService } from '../../application/services/TokenBlacklistService';
 
 // Símbolos para identificação dos serviços
 export const TYPES = {
@@ -23,6 +24,7 @@ export const TYPES = {
   PasswordService: Symbol.for('PasswordService'),
   TokenService: Symbol.for('TokenService'),
   ValidationService: Symbol.for('ValidationService'),
+  TokenBlacklistService: Symbol.for('TokenBlacklistService'),
   
   // Use Cases
   UserUseCases: Symbol.for('UserUseCases'),
@@ -51,12 +53,20 @@ export function configureServices(): void {
 
   container.registerSingleton<TokenService>(
     TYPES.TokenService,
-    () => new TokenService()
+    () => {
+      const tokenBlacklistService = container.resolve<TokenBlacklistService>(TYPES.TokenBlacklistService);
+      return new TokenService(tokenBlacklistService);
+    }
   );
 
   container.registerSingleton<ValidationService>(
     TYPES.ValidationService,
     () => new ValidationService()
+  );
+
+  container.registerSingleton<TokenBlacklistService>(
+    TYPES.TokenBlacklistService,
+    () => new TokenBlacklistService()
   );
 
   // Registra os use cases como singleton

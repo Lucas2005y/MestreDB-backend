@@ -1,4 +1,5 @@
 import { sign, verify, JsonWebTokenError, TokenExpiredError, SignOptions } from 'jsonwebtoken';
+import { TokenBlacklistService } from './TokenBlacklistService';
 
 export interface TokenPayload {
   userId: number;
@@ -24,11 +25,13 @@ export class TokenService {
   private readonly JWT_SECRET: string;
   private readonly ACCESS_TOKEN_EXPIRES_IN: string;
   private readonly REFRESH_TOKEN_EXPIRES_IN: string;
+  private tokenBlacklistService: TokenBlacklistService;
 
-  constructor() {
+  constructor(tokenBlacklistService: TokenBlacklistService) {
     this.JWT_SECRET = process.env.JWT_SECRET || 'mestredb-secret-key-2024';
     this.ACCESS_TOKEN_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '1h';
     this.REFRESH_TOKEN_EXPIRES_IN = process.env.REFRESH_TOKEN_EXPIRES_IN || '7d';
+    this.tokenBlacklistService = tokenBlacklistService;
   }
 
   /**
@@ -175,15 +178,14 @@ export class TokenService {
   }
 
   /**
-   * Método para futuro blacklisting de tokens
-   * Por enquanto apenas valida se o token é válido
+   * Revoga um token adicionando-o à blacklist
    */
   revokeToken(token: string): void {
-    // Valida se o token é válido antes de "revogar"
+    // Valida se o token é válido antes de revogar
     this.validateToken(token);
     
-    // TODO: Implementar blacklisting em cache/database
-    // Por enquanto, tokens serão invalidados naturalmente quando expirarem
+    // Adiciona o token à blacklist
+    this.tokenBlacklistService.addToBlacklist(token);
   }
 
   /**
