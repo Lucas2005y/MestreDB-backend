@@ -123,6 +123,12 @@ export class UserUseCases {
 
     // Hash da nova senha se fornecida
     if (userData.password) {
+      // Validar força da senha
+      const passwordValidation = this.passwordService.validatePasswordStrength(userData.password);
+      if (!passwordValidation.isValid) {
+        throw new Error(`Dados inválidos: ${passwordValidation.errors.join(', ')}`);
+      }
+      
       updateData.password = await this.passwordService.hashPassword(userData.password);
     }
 
@@ -168,6 +174,11 @@ export class UserUseCases {
 
     // Hash da nova senha se fornecida
     if (userData.password) {
+      // Validar força da senha
+      const passwordValidation = this.passwordService.validatePasswordStrength(userData.password);
+      if (!passwordValidation.isValid) {
+        throw new Error(`Dados inválidos: ${passwordValidation.errors.join(', ')}`);
+      }
       updateData.password = await this.passwordService.hashPassword(userData.password);
     }
 
