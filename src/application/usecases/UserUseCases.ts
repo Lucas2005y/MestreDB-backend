@@ -1,6 +1,6 @@
 import { User } from '../../domain/entities/User';
 import { IUserRepository, CreateUserData, UpdateUserData } from '../../domain/interfaces/IUserRepository';
-import { CreateUserDTO, UpdateUserDTO, UserResponseDTO, PaginatedUsersResponseDTO } from '../dtos/UserDTO';
+import { CreateUserDTO, UpdateUserDTO, UpdateOwnProfileDTO, UserResponseDTO, PaginatedUsersResponseDTO } from '../dtos/UserDTO';
 import { validate } from 'class-validator';
 import { plainToClass } from 'class-transformer';
 import { PasswordService } from '../services/PasswordService';
@@ -116,6 +116,51 @@ export class UserUseCases {
     }
 
     // Preparar dados para atualização
+    const updateData: UpdateUserData = {
+      name: userData.name,
+      email: userData.email
+    };
+
+    // Hash da nova senha se fornecida
+    if (userData.password) {
+      updateData.password = await this.passwordService.hashPassword(userData.password);
+    }
+
+    const updatedUser = await this.userRepository.update(id, updateData);
+    return updatedUser ? this.mapToResponseDTO(updatedUser) : null;
+  }
+
+  async updateOwnProfile(id: number, userData: UpdateOwnProfileDTO): Promise<UserResponseDTO | null> {
+    if (!id || id <= 0) {
+      throw new Error('ID inválido');
+    }
+
+    // Validação dos dados
+    const userDto = plainToClass(UpdateOwnProfileDTO, userData);
+    const errors = await validate(userDto);
+    
+    if (errors.length > 0) {
+      const errorMessages = errors.map(error => 
+        Object.values(error.constraints || {}).join(', ')
+      ).join('; ');
+      throw new Error(`Dados inválidos: ${errorMessages}`);
+    }
+
+    // Verificar se usuário existe
+    const existingUser = await this.userRepository.findById(id);
+    if (!existingUser) {
+      return null;
+    }
+
+    // Verificar se email já está em uso por outro usuário
+    if (userData.email && userData.email !== existingUser.email) {
+      const userWithEmail = await this.userRepository.findByEmail(userData.email);
+      if (userWithEmail && userWithEmail.id !== id) {
+        throw new Error('Email já está em uso');
+      }
+    }
+
+    // Preparar dados para atualização (sem is_superuser)
     const updateData: UpdateUserData = {
       name: userData.name,
       email: userData.email

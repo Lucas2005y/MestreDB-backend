@@ -39,6 +39,25 @@ export class UpdateUserDTO {
   password?: string;
 }
 
+export class UpdateOwnProfileDTO {
+  @IsOptional()
+  @IsString({ message: 'Nome deve ser uma string' })
+  @MinLength(2, { message: 'Nome deve ter pelo menos 2 caracteres' })
+  @MaxLength(80, { message: 'Nome deve ter no máximo 80 caracteres' })
+  name?: string;
+
+  @IsOptional()
+  @IsEmail({}, { message: 'Email deve ter um formato válido' })
+  @MaxLength(254, { message: 'Email deve ter no máximo 254 caracteres' })
+  email?: string;
+
+  @IsOptional()
+  @IsString({ message: 'Senha deve ser uma string' })
+  @MinLength(8, { message: 'Senha deve ter pelo menos 8 caracteres' })
+  @MaxLength(128, { message: 'Senha deve ter no máximo 128 caracteres' })
+  password?: string;
+}
+
 export class UserResponseDTO {
   id!: number;
   name!: string;

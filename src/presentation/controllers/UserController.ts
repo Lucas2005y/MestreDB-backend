@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { UserUseCases } from '../../application/usecases/UserUseCases';
-import { CreateUserDTO, UpdateUserDTO, UserResponseDTO } from '../../application/dtos/UserDTO';
+import { CreateUserDTO, UpdateUserDTO, UpdateOwnProfileDTO, UserResponseDTO } from '../../application/dtos/UserDTO';
 import { User } from '../../domain/entities/User';
 import { AuditLogger } from '../../shared/utils/auditLogger';
 
@@ -307,8 +307,8 @@ export class UserController {
         return;
       }
 
-      const updateData: UpdateUserDTO = req.body;
-      const updatedUser = await this.userUseCases.updateUser(req.user.userId, updateData);
+      const updateData: UpdateOwnProfileDTO = req.body;
+      const updatedUser = await this.userUseCases.updateOwnProfile(req.user.userId, updateData);
       
       if (!updatedUser) {
         res.status(404).json({
