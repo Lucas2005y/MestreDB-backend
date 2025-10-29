@@ -12,6 +12,7 @@ import { AuthController } from '../../presentation/controllers/AuthController';
 import { IUserRepository } from '../../domain/interfaces/IUserRepository';
 import { PasswordService } from '../../application/services/PasswordService';
 import { TokenService } from '../../application/services/TokenService';
+import { ValidationService } from '../../application/services/ValidationService';
 
 // Símbolos para identificação dos serviços
 export const TYPES = {
@@ -21,6 +22,7 @@ export const TYPES = {
   // Services
   PasswordService: Symbol.for('PasswordService'),
   TokenService: Symbol.for('TokenService'),
+  ValidationService: Symbol.for('ValidationService'),
   
   // Use Cases
   UserUseCases: Symbol.for('UserUseCases'),
@@ -52,6 +54,11 @@ export function configureServices(): void {
     () => new TokenService()
   );
 
+  container.registerSingleton<ValidationService>(
+    TYPES.ValidationService,
+    () => new ValidationService()
+  );
+
   // Registra os use cases como singleton
   container.registerSingleton<UserUseCases>(
     TYPES.UserUseCases,
@@ -68,7 +75,8 @@ export function configureServices(): void {
       const userRepository = container.resolve<IUserRepository>(TYPES.UserRepository);
       const passwordService = container.resolve<PasswordService>(TYPES.PasswordService);
       const tokenService = container.resolve<TokenService>(TYPES.TokenService);
-      return new AuthUseCases(userRepository, passwordService, tokenService);
+      const validationService = container.resolve<ValidationService>(TYPES.ValidationService);
+      return new AuthUseCases(userRepository, passwordService, tokenService, validationService);
     }
   );
 

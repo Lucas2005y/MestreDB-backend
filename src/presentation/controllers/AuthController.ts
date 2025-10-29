@@ -279,7 +279,8 @@ export class AuthController {
           error: 'Email já cadastrado',
           message: 'Este email já está sendo usado por outro usuário'
         });
-      } else if (errorMessage.includes('inválido') || errorMessage.includes('invalid')) {
+      } else if (errorMessage.includes('inválido') || errorMessage.includes('invalid') || 
+                 errorMessage.includes('Senha inválida') || errorMessage.includes('obrigatório')) {
         res.status(400).json({
           error: 'Dados inválidos',
           message: errorMessage

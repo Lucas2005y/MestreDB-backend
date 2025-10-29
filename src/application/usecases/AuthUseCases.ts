@@ -1,6 +1,7 @@
 import { IUserRepository } from '../../domain/interfaces/IUserRepository';
 import { PasswordService } from '../services/PasswordService';
 import { TokenService, TokenPayload } from '../services/TokenService';
+import { ValidationService } from '../services/ValidationService';
 
 export interface LoginDTO {
   email: string;
@@ -31,15 +32,17 @@ export class AuthUseCases {
   constructor(
     private userRepository: IUserRepository,
     private passwordService: PasswordService,
-    private tokenService: TokenService
+    private tokenService: TokenService,
+    private validationService: ValidationService
   ) {}
 
   async login(loginData: LoginDTO): Promise<AuthResponse> {
     const { email, password } = loginData;
 
-    // Validar dados de entrada
-    if (!email || !password) {
-      throw new Error('Email e senha são obrigatórios');
+    // Validar dados de entrada usando ValidationService
+    const validation = this.validationService.validateLoginData({ email, password });
+    if (!validation.isValid) {
+      throw new Error(validation.errors.join(', '));
     }
 
     // Buscar usuário por email
@@ -79,9 +82,10 @@ export class AuthUseCases {
   async register(registerData: RegisterDTO): Promise<AuthResponse> {
     const { name, email, password, is_superuser } = registerData;
 
-    // Validar dados de entrada
-    if (!name || !email || !password) {
-      throw new Error('Nome, email e senha são obrigatórios');
+    // Validar dados de entrada usando ValidationService
+    const validation = this.validationService.validateRegisterData({ name, email, password });
+    if (!validation.isValid) {
+      throw new Error(validation.errors.join(', '));
     }
 
     // Validar força da senha
@@ -131,6 +135,12 @@ export class AuthUseCases {
   }
 
   async refreshToken(refreshToken: string): Promise<AuthResponse> {
+    // Validar dados de entrada usando ValidationService
+    const validation = this.validationService.validateRefreshTokenData(refreshToken);
+    if (!validation.isValid) {
+      throw new Error(validation.errors.join(', '));
+    }
+
     // Validar refresh token usando TokenService
     const decoded = this.tokenService.validateRefreshToken(refreshToken);
     
