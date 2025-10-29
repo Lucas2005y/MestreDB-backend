@@ -1,5 +1,5 @@
 import { IUserRepository } from '../../domain/interfaces/IUserRepository';
-import * as bcrypt from 'bcrypt';
+import { PasswordService } from '../services/PasswordService';
 import { sign, verify, JsonWebTokenError, TokenExpiredError, SignOptions } from 'jsonwebtoken';
 
 export interface LoginDTO {
@@ -39,7 +39,10 @@ export class AuthUseCases {
   private readonly JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '1h';
   private readonly REFRESH_TOKEN_EXPIRES_IN = process.env.REFRESH_TOKEN_EXPIRES_IN || '7d';
 
-  constructor(private userRepository: IUserRepository) {}
+  constructor(
+    private userRepository: IUserRepository,
+    private passwordService: PasswordService
+  ) {}
 
   async login(loginData: LoginDTO): Promise<AuthResponse> {
     const { email, password } = loginData;
@@ -56,7 +59,7 @@ export class AuthUseCases {
     }
 
     // Verificar senha
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    const isPasswordValid = await this.passwordService.verifyPassword(password, user.password);
     if (!isPasswordValid) {
       throw new Error('Credenciais inválidas');
     }
@@ -102,8 +105,10 @@ export class AuthUseCases {
       throw new Error('Nome, email e senha são obrigatórios');
     }
 
-    if (password.length < 8) {
-      throw new Error('Senha deve ter pelo menos 8 caracteres');
+    // Validar força da senha
+    const passwordValidation = this.passwordService.validatePasswordStrength(password);
+    if (!passwordValidation.isValid) {
+      throw new Error(`Senha inválida: ${passwordValidation.errors.join(', ')}`);
     }
 
     // Verificar se o email já existe
@@ -113,8 +118,7 @@ export class AuthUseCases {
     }
 
     // Hash da senha
-    const saltRounds = 10;
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    const hashedPassword = await this.passwordService.hashPassword(password);
 
     // Criar usuário
     const newUser = await this.userRepository.create({

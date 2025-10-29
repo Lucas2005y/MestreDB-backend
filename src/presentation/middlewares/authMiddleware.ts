@@ -1,12 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
 import { AuthUseCases, TokenPayload } from '../../application/usecases/AuthUseCases';
-import { UserRepository } from '../../infrastructure/repositories/UserRepository';
+import { container } from '../../shared/container/DIContainer';
+import { TYPES } from '../../shared/container/ServiceRegistry';
 
 // Tipos importados do arquivo de declaração global
 
-// Instância dos use cases para autenticação
-const userRepository = new UserRepository();
-const authUseCases = new AuthUseCases(userRepository);
+// Instância dos use cases para autenticação via DI
+const authUseCases = container.resolve<AuthUseCases>(TYPES.AuthUseCases);
 
 // Middleware para verificar se o usuário está autenticado
 export const authenticateToken = async (req: Request, res: Response, next: NextFunction): Promise<void> => {

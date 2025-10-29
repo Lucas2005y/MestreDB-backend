@@ -3,10 +3,13 @@ import { IUserRepository, CreateUserData, UpdateUserData } from '../../domain/in
 import { CreateUserDTO, UpdateUserDTO, UserResponseDTO, PaginatedUsersResponseDTO } from '../dtos/UserDTO';
 import { validate } from 'class-validator';
 import { plainToClass } from 'class-transformer';
-import * as bcrypt from 'bcrypt';
+import { PasswordService } from '../services/PasswordService';
 
 export class UserUseCases {
-  constructor(private userRepository: IUserRepository) {}
+  constructor(
+    private userRepository: IUserRepository,
+    private passwordService: PasswordService
+  ) {}
 
   async createUser(userData: CreateUserDTO): Promise<UserResponseDTO> {
     // Validação dos dados
@@ -27,7 +30,7 @@ export class UserUseCases {
     }
 
     // Hash da senha
-    const hashedPassword = await bcrypt.hash(userData.password, 12);
+    const hashedPassword = await this.passwordService.hashPassword(userData.password);
 
     // Criar usuário
     const createData: CreateUserData = {
@@ -120,7 +123,7 @@ export class UserUseCases {
 
     // Hash da nova senha se fornecida
     if (userData.password) {
-      updateData.password = await bcrypt.hash(userData.password, 12);
+      updateData.password = await this.passwordService.hashPassword(userData.password);
     }
 
     const updatedUser = await this.userRepository.update(id, updateData);
@@ -151,7 +154,7 @@ export class UserUseCases {
       return null;
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    const isPasswordValid = await this.passwordService.verifyPassword(password, user.password);
     if (!isPasswordValid) {
       return null;
     }

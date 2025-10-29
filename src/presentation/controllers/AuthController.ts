@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import { AuthUseCases, LoginDTO } from '../../application/usecases/AuthUseCases';
-import { UserRepository } from '../../infrastructure/repositories/UserRepository';
 import { AuditLogger } from '../../shared/utils/auditLogger';
 
 interface LoginRequestDTO {
@@ -21,10 +20,9 @@ interface RegisterRequestDTO {
 export class AuthController {
   private authUseCases: AuthUseCases;
 
-  constructor() {
+  constructor(authUseCases: AuthUseCases) {
     console.log('🔧 Inicializando AuthController...');
-    const userRepository = new UserRepository();
-    this.authUseCases = new AuthUseCases(userRepository);
+    this.authUseCases = authUseCases;
     console.log('✅ AuthController inicializado com sucesso');
   }
 

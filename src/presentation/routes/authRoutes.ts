@@ -2,9 +2,10 @@ import { Router } from 'express';
 import { AuthController } from '../controllers/AuthController';
 import { authenticateToken } from '../middlewares/authMiddleware';
 import { loginRateLimit, registerRateLimit } from '../middlewares/rateLimitMiddleware';
+import { ControllerFactory } from '../../shared/container/ServiceRegistry';
 
 const router = Router();
-const authController = new AuthController();
+const authController = ControllerFactory.createAuthController();
 
 console.log('📋 Carregando authRoutes...');
 
