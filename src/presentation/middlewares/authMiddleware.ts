@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { AuthUseCases, TokenPayload } from '../../application/usecases/AuthUseCases';
+import { AuthUseCases } from '../../application/usecases/AuthUseCases';
+import { TokenPayload } from '../../application/services/TokenService';
 import { container } from '../../shared/container/DIContainer';
 import { TYPES } from '../../shared/container/ServiceRegistry';
 
