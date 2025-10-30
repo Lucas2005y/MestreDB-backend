@@ -2,7 +2,15 @@
 
 ## 📋 Visão Geral
 
-Este documento detalha a implementação da Clean Architecture no projeto MestreDB Backend, explicando a organização em camadas, fluxo de dependências e padrões arquiteturais adotados.
+Este documento detalha a implementação da Clean Architecture no projeto MestreDB Backend, explicando a organização em camadas, fluxo de dependências e padrões arquiteturais avançados adotados.
+
+### 🏭 Padrões de Design Implementados
+
+- **Factory Pattern**: Criação padronizada e controlada de objetos
+- **Dependency Injection**: Gerenciamento automático de dependências
+- **Service Registry**: Registro centralizado de serviços
+- **Repository Pattern**: Abstração da camada de dados
+- **Use Case Pattern**: Isolamento da lógica de negócio
 
 ## 🏗️ Arquitetura em Camadas
 
@@ -96,6 +104,16 @@ src/
 │       ├── authMiddleware.ts        # Middleware de autenticação
 │       ├── rateLimitMiddleware.ts   # Middleware de rate limiting
 │       └── errorMiddleware.ts       # Middleware de tratamento de erros
+│
+├── main/                            # 🏭 CAMADA PRINCIPAL (FACTORY PATTERN)
+│   ├── factories/                   # Factories para criação de objetos
+│   │   ├── AppFactory.ts            # Factory principal da aplicação
+│   │   ├── MiddlewareFactory.ts     # Factory de middlewares
+│   │   ├── RouteFactory.ts          # Factory de rotas
+│   │   └── ServerFactory.ts         # Factory do servidor
+│   ├── app.ts                       # Configuração da aplicação
+│   ├── bootstrap.ts                 # Inicialização do sistema
+│   └── server.ts                    # Servidor principal
 │
 ├── shared/                          # 🔄 UTILITÁRIOS COMPARTILHADOS
 │   ├── container/                   # Injeção de dependência
@@ -437,6 +455,140 @@ async create(userData: CreateUserData) {
   return await this.repository.save(entity);
 }
 ```
+
+## 🏭 Factory Pattern Implementation
+
+### Visão Geral dos Factories
+
+O projeto implementa o Factory Pattern para centralizar e padronizar a criação de componentes da aplicação, garantindo configuração consistente e facilitando manutenção.
+
+### 1. AppFactory - Factory Principal
+
+```typescript
+// src/main/factories/AppFactory.ts
+export class AppFactory {
+  static create(): Express {
+    const app = express();
+    
+    // Configurar middlewares globais
+    MiddlewareFactory.configureGlobalMiddlewares(app);
+    
+    // Configurar rotas
+    RouteFactory.configureRoutes(app);
+    
+    // Configurar tratamento de erros
+    MiddlewareFactory.configureErrorHandling(app);
+    
+    return app;
+  }
+}
+```
+
+### 2. MiddlewareFactory - Factory de Middlewares
+
+```typescript
+// src/main/factories/MiddlewareFactory.ts
+export class MiddlewareFactory {
+  static configureGlobalMiddlewares(app: Express): void {
+    // CORS
+    app.use(cors(corsOptions));
+    
+    // Rate Limiting
+    app.use(rateLimitMiddleware);
+    app.use(customRateLimitMiddleware);
+    
+    // Parsing
+    app.use(express.json({ limit: '10mb' }));
+    app.use(express.urlencoded({ extended: true }));
+    
+    // Logging
+    app.use(requestLoggingMiddleware);
+    
+    // Swagger
+    this.configureSwagger(app);
+  }
+  
+  static configureErrorHandling(app: Express): void {
+    app.use(errorHandler);
+  }
+}
+```
+
+### 3. RouteFactory - Factory de Rotas
+
+```typescript
+// src/main/factories/RouteFactory.ts
+export class RouteFactory {
+  static configureRoutes(app: Express): void {
+    // Rota raiz
+    app.get('/', (req, res) => {
+      res.json({
+        message: 'MestreDB API is running!',
+        version: '1.0.0',
+        timestamp: new Date().toISOString()
+      });
+    });
+    
+    // Rotas da API
+    this.configureApiRoutes(app);
+  }
+  
+  private static async configureApiRoutes(app: Express): Promise<void> {
+    const routes = await import('../../presentation/routes');
+    app.use('/api', routes.default);
+  }
+}
+```
+
+### 4. ServerFactory - Factory do Servidor
+
+```typescript
+// src/main/factories/ServerFactory.ts
+export class ServerFactory {
+  static create(): Server {
+    const app = AppFactory.create();
+    const port = process.env.PORT || 3000;
+    
+    const server = app.listen(port, () => {
+      console.log(`🚀 Server running on port ${port}`);
+    });
+    
+    this.configureGracefulShutdown(server);
+    
+    return server;
+  }
+  
+  private static configureGracefulShutdown(server: Server): void {
+    const gracefulShutdown = (signal: string) => {
+      console.log(`\n${signal} received. Shutting down gracefully...`);
+      
+      server.close(async () => {
+        console.log('HTTP server closed.');
+        
+        try {
+          await AppDataSource.destroy();
+          console.log('Database connection closed.');
+          process.exit(0);
+        } catch (error) {
+          console.error('Error during shutdown:', error);
+          process.exit(1);
+        }
+      });
+    };
+    
+    process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+    process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+  }
+}
+```
+
+### Benefícios do Factory Pattern
+
+1. **Configuração Centralizada**: Toda configuração da aplicação em um local
+2. **Reutilização**: Factories podem ser reutilizados em diferentes contextos
+3. **Testabilidade**: Fácil criação de mocks para testes
+4. **Manutenibilidade**: Mudanças de configuração em um só lugar
+5. **Consistência**: Garantia de configuração padronizada
 
 ## ✅ Benefícios da Arquitetura
 

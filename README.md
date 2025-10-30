@@ -1,6 +1,6 @@
 # MestreDB Backend API
 
-API REST para gerenciamento de usuários desenvolvida seguindo os princípios da Clean Architecture, utilizando Node.js, TypeScript, TypeORM e MySQL.
+API REST para gerenciamento de usuários desenvolvida seguindo os princípios da Clean Architecture, utilizando Node.js, TypeScript, TypeORM e MySQL. Implementa padrões avançados de design como Factory Pattern, Dependency Injection e Service Registry.
 
 ## 🚀 Tecnologias
 
@@ -13,11 +13,13 @@ API REST para gerenciamento de usuários desenvolvida seguindo os princípios da
 - **Swagger** - Documentação da API
 - **bcrypt** - Hash de senhas
 - **class-validator** - Validação de dados
-- **JWT** - Autenticação (preparado para implementação)
+- **JWT** - Autenticação completa implementada
+- **express-rate-limit** - Rate limiting avançado
+- **express-slow-down** - Controle de velocidade de requisições
 
 ## 🏗️ Arquitetura
 
-O projeto segue os princípios da **Clean Architecture**, organizando o código em camadas bem definidas:
+O projeto segue os princípios da **Clean Architecture** com padrões avançados de design, organizando o código em camadas bem definidas:
 
 ```
 src/
@@ -26,19 +28,36 @@ src/
 │   └── interfaces/      # Contratos e interfaces
 ├── application/         # Camada de Aplicação
 │   ├── dtos/           # Data Transfer Objects
+│   ├── services/       # Serviços de aplicação
 │   └── usecases/       # Casos de uso
 ├── infrastructure/     # Camada de Infraestrutura
-│   ├── config/         # Configurações
-│   ├── database/       # Entidades do banco
-│   └── repositories/   # Implementação dos repositórios
+│   ├── config/         # Configurações e inicializadores
+│   ├── database/       # Entidades e modelos do banco
+│   ├── repositories/   # Implementação dos repositórios
+│   └── web/           # Configurações web
 ├── presentation/       # Camada de Apresentação
 │   ├── controllers/    # Controladores
-│   ├── middlewares/    # Middlewares
+│   ├── middlewares/    # Middlewares (auth, rate limit, etc.)
 │   └── routes/         # Rotas da API
-└── shared/            # Código compartilhado
-    ├── errors/        # Tratamento de erros
-    └── utils/         # Utilitários
+├── main/               # Camada Principal (Factory Pattern)
+│   ├── factories/      # Factories para criação de objetos
+│   ├── app.ts         # Configuração da aplicação
+│   ├── bootstrap.ts   # Inicialização do sistema
+│   └── server.ts      # Servidor principal
+├── shared/            # Código compartilhado
+│   ├── container/     # Dependency Injection Container
+│   ├── errors/        # Tratamento de erros
+│   └── utils/         # Utilitários
+└── types/             # Definições de tipos TypeScript
 ```
+
+### 🏭 Padrões de Design Implementados
+
+- **Factory Pattern**: Criação controlada de objetos (AppFactory, MiddlewareFactory, RouteFactory)
+- **Dependency Injection**: Container DI para gerenciamento de dependências
+- **Service Registry**: Registro centralizado de serviços
+- **Repository Pattern**: Abstração da camada de dados
+- **Use Case Pattern**: Lógica de negócio isolada
 
 ## 📋 Pré-requisitos
 
@@ -253,6 +272,7 @@ curl -X GET http://localhost:3000/api/usuarios/1
 - **Registro Público**: Qualquer pessoa pode criar uma conta via `/api/auth/register`
 - **Login/Logout**: Sistema completo de autenticação com JWT
 - **Refresh Token**: Renovação automática de tokens de acesso
+- **Token Blacklist**: Sistema de invalidação de tokens para logout seguro
 - **Auto-gestão**: Usuários podem gerenciar suas próprias contas
 
 ### 👥 Sistema de Permissões:
@@ -266,14 +286,31 @@ curl -X GET http://localhost:3000/api/usuarios/1
 - `requireOwnershipOrSuperUserForModification`: Modificação de conta própria ou por admin
 - `requireOwnershipOrSuperUserForDeletion`: Deleção com proteção especial para admins
 
+### 🛡️ Sistema de Rate Limiting:
+- **Rate Limiting Global**: Proteção contra spam e ataques DDoS
+- **Rate Limiting Customizado**: Limites específicos por endpoint
+- **Slow Down**: Redução gradual de velocidade para requisições excessivas
+- **Configuração Flexível**: Limites ajustáveis por ambiente
+
+### 🏭 Arquitetura Avançada:
+- **Factory Pattern**: Criação padronizada de componentes da aplicação
+- **Dependency Injection**: Gerenciamento automático de dependências
+- **Service Registry**: Registro centralizado de todos os serviços
+- **Audit Logging**: Sistema de auditoria para rastreamento de ações
+- **Graceful Shutdown**: Encerramento seguro da aplicação
+
 ## 🔒 Segurança
 
-- Senhas são criptografadas usando bcrypt com salt rounds 12
-- Validação de entrada usando class-validator
-- Middleware de tratamento de erros
-- CORS configurável
-- Autenticação JWT completa implementada
-- Sistema de refresh tokens para segurança aprimorada
+- **Criptografia de Senhas**: bcrypt com salt rounds 12 para máxima segurança
+- **Validação de Entrada**: class-validator para sanitização de dados
+- **Middleware de Erros**: Tratamento centralizado e seguro de exceções
+- **CORS Configurável**: Controle de origem de requisições
+- **Autenticação JWT**: Sistema completo com access e refresh tokens
+- **Token Blacklist**: Invalidação segura de tokens no logout
+- **Rate Limiting**: Proteção contra ataques de força bruta e DDoS
+- **Slow Down**: Redução gradual de velocidade para requisições suspeitas
+- **Audit Logging**: Rastreamento de ações para auditoria de segurança
+- **Graceful Shutdown**: Encerramento seguro preservando dados em processamento
 
 ## 🚀 Deploy
 
