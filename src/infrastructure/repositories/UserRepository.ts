@@ -112,7 +112,7 @@ export class UserRepository implements IUserRepository {
   }
 
   private mapToDomainEntity(userEntity: UserEntity): User {
-    return new User(
+    return User.createUnsafe(
       userEntity.id,
       userEntity.name,
       userEntity.email,
