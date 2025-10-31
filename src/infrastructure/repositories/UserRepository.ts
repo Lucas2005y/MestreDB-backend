@@ -1,4 +1,4 @@
-import { Repository } from 'typeorm';
+import { Repository, DataSource } from 'typeorm';
 import { AppDataSource } from '../config/database';
 import { User as UserEntity } from '../database/entities/User';
 import { User } from '../../domain/entities/User';
@@ -7,8 +7,9 @@ import { IUserRepository, CreateUserData, UpdateUserData } from '../../domain/in
 export class UserRepository implements IUserRepository {
   private repository: Repository<UserEntity>;
 
-  constructor() {
-    this.repository = AppDataSource.getRepository(UserEntity);
+  constructor(dataSource?: DataSource) {
+    const ds = dataSource || AppDataSource;
+    this.repository = ds.getRepository(UserEntity);
   }
 
   async create(userData: CreateUserData): Promise<User> {

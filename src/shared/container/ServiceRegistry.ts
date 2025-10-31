@@ -3,8 +3,10 @@
  * Configura todas as dependências do projeto seguindo a Clean Architecture
  */
 
+import { DataSource } from 'typeorm';
 import { container } from './DIContainer';
 import { UserRepository } from '../../infrastructure/repositories/UserRepository';
+import { UserRepositoryTestAdapter } from '../../__tests__/integration/repositories/UserRepository.test.adapter';
 import { UserUseCases } from '../../application/usecases/UserUseCases';
 import { AuthUseCases } from '../../application/usecases/AuthUseCases';
 import { UserController } from '../../presentation/controllers/UserController';
@@ -40,11 +42,18 @@ export const TYPES = {
 /**
  * Configura todas as dependências do projeto
  */
-export function configureServices(): void {
+export function configureServices(customDataSource?: DataSource): void {
   // Registra o repositório como singleton
   container.registerSingleton<IUserRepository>(
     TYPES.UserRepository,
-    () => new UserRepository()
+    () => {
+      // Se um DataSource customizado for fornecido (para testes), usa o UserRepositoryTestAdapter
+      if (customDataSource) {
+        return new UserRepositoryTestAdapter(customDataSource);
+      }
+      // Caso contrário, usa o UserRepository padrão
+      return new UserRepository();
+    }
   );
 
   // Registra os serviços como singleton

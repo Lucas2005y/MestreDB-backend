@@ -14,6 +14,7 @@ interface RateLimitConfig {
 export class RateLimitingService {
   private attempts: Map<string, RateLimitAttempt> = new Map();
   private config: RateLimitConfig;
+  private cleanupInterval: NodeJS.Timeout | null = null;
 
   constructor() {
     // Configuração de produção para rate limiting
@@ -30,7 +31,7 @@ export class RateLimitingService {
     });
 
     // Limpeza automática a cada minuto
-    setInterval(() => this.cleanup(), 60000);
+    this.cleanupInterval = setInterval(() => this.cleanup(), 60000);
   }
 
   /**
@@ -167,5 +168,17 @@ export class RateLimitingService {
   reset(): void {
     this.attempts.clear();
     console.log('🔄 Rate limiting resetado completamente');
+  }
+
+  /**
+   * Destrói o serviço e limpa recursos
+   */
+  destroy(): void {
+    if (this.cleanupInterval) {
+      clearInterval(this.cleanupInterval);
+      this.cleanupInterval = null;
+      console.log('🧹 RateLimitingService: Interval de limpeza removido');
+    }
+    this.attempts.clear();
   }
 }

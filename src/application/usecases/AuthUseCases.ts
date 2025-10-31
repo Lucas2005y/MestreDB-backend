@@ -38,24 +38,33 @@ export class AuthUseCases {
 
   async login(loginData: LoginDTO): Promise<AuthResponse> {
     const { email, password } = loginData;
+    console.log('🔍 AuthUseCases.login - Dados recebidos:', { email, passwordLength: password?.length });
 
     // Validar dados de entrada usando ValidationService
     const validation = this.validationService.validateLoginData({ email, password });
     if (!validation.isValid) {
+      console.log('❌ AuthUseCases.login - Validação falhou:', validation.errors);
       throw new Error(validation.errors.join(', '));
     }
+    console.log('✅ AuthUseCases.login - Validação passou');
 
     // Buscar usuário por email
     const user = await this.userRepository.findByEmail(email);
     if (!user) {
+      console.log('❌ AuthUseCases.login - Usuário não encontrado para email:', email);
       throw new Error('Credenciais inválidas');
     }
+    console.log('✅ AuthUseCases.login - Usuário encontrado:', { id: user.id, email: user.email, hasPassword: !!user.password });
 
     // Verificar senha
+    console.log('🔍 AuthUseCases.login - Verificando senha...');
     const isPasswordValid = await this.passwordService.verifyPassword(password, user.password);
+    console.log('🔍 AuthUseCases.login - Resultado da verificação de senha:', isPasswordValid);
     if (!isPasswordValid) {
+      console.log('❌ AuthUseCases.login - Senha inválida');
       throw new Error('Credenciais inválidas');
     }
+    console.log('✅ AuthUseCases.login - Senha válida');
 
     // Atualizar last_login
     await this.userRepository.updateLastLogin(user.id);
