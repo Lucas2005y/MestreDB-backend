@@ -2,6 +2,26 @@
 
 API REST para gerenciamento de usuários desenvolvida seguindo os princípios da Clean Architecture, utilizando Node.js, TypeScript, TypeORM e MySQL. Implementa padrões avançados de design como Factory Pattern, Dependency Injection e Service Registry.
 
+## 📚 Documentação
+
+**A documentação completa está organizada em:** [`docs/`](./docs/)
+
+### 🚀 Início Rápido
+- 📦 [Guia de Instalação](./docs/01-getting-started/INSTALLATION.md) - Como instalar e configurar
+- 🎯 [Início Rápido](./docs/01-getting-started/QUICK_START.md) - Primeiros passos
+- 🏗️ [Estrutura do Projeto](./docs/01-getting-started/PROJECT_STRUCTURE.md) - Organização do código
+
+### 📖 Documentação Completa
+- [Arquitetura](./docs/02-architecture/) - Clean Architecture e padrões
+- [Desenvolvimento](./docs/03-development/) - Guias de desenvolvimento
+- [Funcionalidades](./docs/04-features/) - Autenticação, usuários, segurança
+- [Deploy](./docs/05-deployment/) - Produção e ambientes
+- [API Reference](./docs/06-api-reference/) - Endpoints e exemplos
+- [Banco de Dados](./docs/07-database/) - Schema e migrations
+- [Troubleshooting](./docs/08-troubleshooting/) - FAQ e erros comuns
+
+**📋 Índice Completo:** [docs/README.md](./docs/README.md)
+
 ## 🚀 Tecnologias
 
 - **Node.js** - Runtime JavaScript

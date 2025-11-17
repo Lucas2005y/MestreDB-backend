@@ -14,10 +14,11 @@ build/
 *.tsbuildinfo
 
 # Environment variables
-.env
+.env                        # Arquivo genérico (mantido por compatibilidade)
 .env.local
 .env.development.local
 .env.test.local
+.env.production             # CRÍTICO: Nunca commitar arquivo de produção!
 .env.production.local
 
 # Logs
