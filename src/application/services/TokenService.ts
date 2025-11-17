@@ -3,6 +3,7 @@ import { TokenBlacklistService } from './TokenBlacklistService';
 
 export interface TokenPayload {
   userId: number;
+  name: string;
   email: string;
   is_superuser: boolean;
   type: 'access' | 'refresh';
@@ -17,6 +18,7 @@ export interface TokenPair {
 
 export interface UserTokenData {
   id: number;
+  name: string;
   email: string;
   is_superuser: boolean;
 }
@@ -40,13 +42,14 @@ export class TokenService {
   generateAccessToken(userData: UserTokenData): string {
     const payload: TokenPayload = {
       userId: userData.id,
+      name: userData.name,
       email: userData.email,
       is_superuser: userData.is_superuser,
       type: 'access'
     };
 
-    return sign(payload, this.JWT_SECRET, { 
-      expiresIn: this.ACCESS_TOKEN_EXPIRES_IN 
+    return sign(payload, this.JWT_SECRET, {
+      expiresIn: this.ACCESS_TOKEN_EXPIRES_IN
     } as SignOptions);
   }
 
@@ -56,13 +59,14 @@ export class TokenService {
   generateRefreshToken(userData: UserTokenData): string {
     const payload: TokenPayload = {
       userId: userData.id,
+      name: userData.name,
       email: userData.email,
       is_superuser: userData.is_superuser,
       type: 'refresh'
     };
 
-    return sign(payload, this.JWT_SECRET, { 
-      expiresIn: this.REFRESH_TOKEN_EXPIRES_IN 
+    return sign(payload, this.JWT_SECRET, {
+      expiresIn: this.REFRESH_TOKEN_EXPIRES_IN
     } as SignOptions);
   }
 
@@ -82,7 +86,7 @@ export class TokenService {
   validateAccessToken(token: string): TokenPayload {
     try {
       const decoded = verify(token, this.JWT_SECRET) as TokenPayload;
-      
+
       // Verificar se é um access token
       if (decoded.type !== 'access') {
         throw new Error('Token inválido: tipo incorreto');
@@ -106,7 +110,7 @@ export class TokenService {
   validateRefreshToken(token: string): TokenPayload {
     try {
       const decoded = verify(token, this.JWT_SECRET) as TokenPayload;
-      
+
       // Verificar se é um refresh token
       if (decoded.type !== 'refresh') {
         throw new Error('Refresh token inválido');
@@ -172,7 +176,7 @@ export class TokenService {
   refreshTokenPair(refreshToken: string, userData: UserTokenData): TokenPair {
     // Primeiro valida o refresh token
     this.validateRefreshToken(refreshToken);
-    
+
     // Se válido, gera novo par de tokens
     return this.generateTokenPair(userData);
   }
@@ -183,7 +187,7 @@ export class TokenService {
   revokeToken(token: string): void {
     // Valida se o token é válido antes de revogar
     this.validateToken(token);
-    
+
     // Adiciona o token à blacklist
     this.tokenBlacklistService.addToBlacklist(token);
   }

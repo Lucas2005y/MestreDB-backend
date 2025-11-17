@@ -10,9 +10,10 @@ declare global {
     interface Request {
       user?: {
         userId: number;
+        id: number;
+        name: string;
         email: string;
         is_superuser: boolean;
-        id: number;
       };
     }
   }
@@ -41,7 +42,7 @@ export class UserController {
   private removePasswordsFromList(users: UserResponseDTO[]): UserResponseDTO[];
   private removePasswordsFromList(users: User[] | UserResponseDTO[]): Omit<User, 'password'>[] | UserResponseDTO[] {
     if (users.length === 0) return users;
-    
+
     // Se o primeiro item tem password, então são Users
     if ('password' in users[0]) {
       return (users as User[]).map(user => this.removePassword(user) as Omit<User, 'password'>);
@@ -94,14 +95,14 @@ export class UserController {
     try {
       const userData: CreateUserDTO = req.body;
       const user = await this.userUseCases.createUser(userData);
-      
+
       // Log de auditoria para criação de usuário
       AuditLogger.log(req, 'CREATE_USER', 'USER', user.id, true, {
         createdUserId: user.id,
         createdUserEmail: user.email,
         adminUserId: req.user?.id
       });
-      
+
       res.status(201).json({
         success: true,
         message: 'Usuário criado com sucesso',
@@ -109,7 +110,7 @@ export class UserController {
       });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Erro interno do servidor';
-      
+
       if (errorMessage.includes('Email já está em uso')) {
         res.status(409).json({
           success: false,
@@ -161,10 +162,10 @@ export class UserController {
       const limit = parseInt(req.query.limit as string) || 10;
 
       const result = await this.userUseCases.getAllUsers(page, limit);
-      
+
       // Filtrar senhas dos usuários (super usuários não devem ver senhas)
       const usersWithoutPasswords = this.removePasswordsFromList(result.users);
-      
+
       res.status(200).json({
         success: true,
         message: 'Usuários listados com sucesso',
@@ -230,7 +231,7 @@ export class UserController {
       }
 
       const user = await this.userUseCases.getUserById(req.user.userId);
-      
+
       if (!user) {
         res.status(404).json({
           success: false,
@@ -309,7 +310,7 @@ export class UserController {
 
       const updateData: UpdateOwnProfileDTO = req.body;
       const updatedUser = await this.userUseCases.updateOwnProfile(req.user.userId, updateData);
-      
+
       if (!updatedUser) {
         res.status(404).json({
           success: false,
@@ -325,7 +326,7 @@ export class UserController {
       });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Erro interno do servidor';
-      
+
       if (errorMessage.includes('Email já está em uso')) {
         res.status(409).json({
           success: false,
@@ -367,7 +368,7 @@ export class UserController {
   async getUserById(req: Request, res: Response): Promise<void> {
     try {
       const id = parseInt(req.params.id);
-      
+
       if (isNaN(id)) {
         res.status(400).json({
           success: false,
@@ -377,7 +378,7 @@ export class UserController {
       }
 
       const user = await this.userUseCases.getUserById(id);
-      
+
       if (!user) {
         res.status(404).json({
           success: false,
@@ -394,7 +395,7 @@ export class UserController {
       });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Erro interno do servidor';
-      
+
       if (errorMessage.includes('ID inválido')) {
         res.status(400).json({
           success: false,
@@ -453,7 +454,7 @@ export class UserController {
   async updateUser(req: Request, res: Response): Promise<void> {
     try {
       const id = parseInt(req.params.id);
-      
+
       if (isNaN(id)) {
         res.status(400).json({
           success: false,
@@ -464,7 +465,7 @@ export class UserController {
 
       const userData: UpdateUserDTO = req.body;
       const user = await this.userUseCases.updateUser(id, userData);
-      
+
       if (!user) {
         res.status(404).json({
           success: false,
@@ -480,7 +481,7 @@ export class UserController {
       });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Erro interno do servidor';
-      
+
       if (errorMessage.includes('Email já está em uso')) {
         res.status(409).json({
           success: false,
@@ -524,7 +525,7 @@ export class UserController {
   async deleteUser(req: Request, res: Response): Promise<void> {
     try {
       const id = parseInt(req.params.id);
-      
+
       if (isNaN(id)) {
         res.status(400).json({
           success: false,
@@ -534,7 +535,7 @@ export class UserController {
       }
 
       const deleted = await this.userUseCases.deleteUser(id);
-      
+
       if (!deleted) {
         res.status(404).json({
           success: false,
@@ -555,7 +556,7 @@ export class UserController {
       });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Erro interno do servidor';
-      
+
       if (errorMessage.includes('ID inválido')) {
         res.status(400).json({
           success: false,

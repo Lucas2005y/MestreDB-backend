@@ -6,9 +6,10 @@ declare global {
     interface Request {
       user?: {
         userId: number;
+        id: number;
+        name: string;
         email: string;
         is_superuser: boolean;
-        id: number;
       };
     }
   }
@@ -45,10 +46,10 @@ export class AuditLogger {
     };
 
     this.logs.push(logEntry);
-    
+
     // Log no console para desenvolvimento
     console.log(`🔍 AUDIT LOG: ${logEntry.userEmail} ${action} ${resource}${resourceId ? ` (ID: ${resourceId})` : ''} - ${success ? 'SUCCESS' : 'FAILED'}`);
-    
+
     // Em produção, você pode enviar para um serviço de logging externo
     // como Winston, Elasticsearch, etc.
   }
@@ -78,20 +79,20 @@ export class AuditLogger {
 export const auditMiddleware = (action: string, resource: string) => {
   return (req: Request, res: any, next: any) => {
     const originalSend = res.send;
-    
+
     res.send = function(data: any) {
       const success = res.statusCode >= 200 && res.statusCode < 400;
       const resourceId = req.params.id || req.body.id;
-      
+
       AuditLogger.log(req, action, resource, resourceId, success, {
         statusCode: res.statusCode,
         method: req.method,
         url: req.originalUrl
       });
-      
+
       return originalSend.call(this, data);
     };
-    
+
     next();
   };
 };

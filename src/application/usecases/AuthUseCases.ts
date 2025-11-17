@@ -72,6 +72,7 @@ export class AuthUseCases {
     // Gerar tokens usando TokenService
     const { accessToken, refreshToken } = this.tokenService.generateTokenPair({
       id: user.id,
+      name: user.name,
       email: user.email,
       is_superuser: user.is_superuser
     });
@@ -123,6 +124,7 @@ export class AuthUseCases {
     // Gerar tokens usando TokenService
     const { accessToken, refreshToken } = this.tokenService.generateTokenPair({
       id: newUser.id,
+      name: newUser.name,
       email: newUser.email,
       is_superuser: newUser.is_superuser
     });
@@ -152,7 +154,7 @@ export class AuthUseCases {
 
     // Validar refresh token usando TokenService
     const decoded = this.tokenService.validateRefreshToken(refreshToken);
-    
+
     const user = await this.userRepository.findById(decoded.userId);
     if (!user) {
       throw new Error('Usuário não encontrado');
@@ -161,6 +163,7 @@ export class AuthUseCases {
     // Gerar novos tokens usando TokenService
     const { accessToken, refreshToken: newRefreshToken } = this.tokenService.generateTokenPair({
       id: user.id,
+      name: user.name,
       email: user.email,
       is_superuser: user.is_superuser
     });

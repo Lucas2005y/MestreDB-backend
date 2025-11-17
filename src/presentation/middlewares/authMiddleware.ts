@@ -24,8 +24,8 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
       return;
     }
 
-    const token = authHeader.startsWith('Bearer ') 
-      ? authHeader.substring(7) 
+    const token = authHeader.startsWith('Bearer ')
+      ? authHeader.substring(7)
       : authHeader;
 
     if (!token) {
@@ -52,6 +52,7 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
     req.user = {
       userId: decoded.userId,
       id: decoded.userId, // Alias para compatibilidade
+      name: decoded.name,
       email: decoded.email,
       is_superuser: decoded.is_superuser
     };
@@ -59,7 +60,7 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
     next();
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Erro de autenticação';
-    
+
     res.status(401).json({
       error: 'Token inválido',
       message: errorMessage
@@ -73,8 +74,8 @@ export const optionalAuth = async (req: Request, res: Response, next: NextFuncti
     const authHeader = req.headers.authorization;
 
     if (authHeader) {
-      const token = authHeader.startsWith('Bearer ') 
-        ? authHeader.substring(7) 
+      const token = authHeader.startsWith('Bearer ')
+        ? authHeader.substring(7)
         : authHeader;
 
       if (token) {
@@ -85,6 +86,7 @@ export const optionalAuth = async (req: Request, res: Response, next: NextFuncti
             req.user = {
               userId: decoded.userId,
               id: decoded.userId, // Alias para compatibilidade
+              name: decoded.name,
               email: decoded.email,
               is_superuser: decoded.is_superuser
             };
