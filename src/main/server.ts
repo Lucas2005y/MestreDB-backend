@@ -22,7 +22,7 @@ export async function startServer(): Promise<void> {
     // 4. Iniciar servidor usando factory
     const port = Number(process.env.PORT) || 3000;
     const environment = process.env.NODE_ENV || 'development';
-    
+
     const server = ServerFactory.create(app, { port, environment });
 
     // 5. Configurar encerramento gracioso
@@ -33,6 +33,3 @@ export async function startServer(): Promise<void> {
     process.exit(1);
   }
 }
-
-// Executar servidor
-startServer();
