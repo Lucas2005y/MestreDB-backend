@@ -29,7 +29,7 @@ export class DatabaseInitializer {
   private static async createDefaultAdmin(): Promise<void> {
     try {
       const userRepository = new UserRepository();
-      
+
       // Verificar se já existe um usuário administrador
       const adminEmail = process.env.ADMIN_EMAIL || 'admin@mestredb.com';
       const existingAdmin = await userRepository.findByEmail(adminEmail);
@@ -55,9 +55,14 @@ export class DatabaseInitializer {
   }
 
   static async close(): Promise<void> {
-    if (AppDataSource.isInitialized) {
-      await AppDataSource.destroy();
-      console.log('✅ Conexão com banco de dados fechada');
+    try {
+      if (AppDataSource.isInitialized) {
+        await AppDataSource.destroy();
+        console.log('✅ Conexão com banco de dados fechada');
+      }
+    } catch (error) {
+      // Ignora erro se conexão já estava fechada
+      console.log('ℹ️ Conexão com banco de dados já estava fechada');
     }
   }
 }

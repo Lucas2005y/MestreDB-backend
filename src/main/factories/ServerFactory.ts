@@ -13,6 +13,7 @@ interface ServerConfig {
  * Factory responsável por criar e configurar o servidor HTTP
  */
 export class ServerFactory {
+  private static gracefulShutdownConfigured = false;
   /**
    * Cria e inicia o servidor HTTP
    */
@@ -32,18 +33,35 @@ export class ServerFactory {
    * Configura encerramento gracioso do servidor
    */
   static configureGracefulShutdown(server: Server): void {
+    // Prevenir configuração duplicada
+    if (this.gracefulShutdownConfigured) {
+      console.log('⚠️ Graceful shutdown já configurado, ignorando...');
+      return;
+    }
+    this.gracefulShutdownConfigured = true;
+    console.log('🔧 Configurando graceful shutdown...');
+
+    let isShuttingDown = false;
+
     const gracefulShutdown = async (signal: string) => {
+      // Prevenir múltiplas execuções
+      if (isShuttingDown) {
+        console.log(`⚠️ Shutdown já em andamento, ignorando sinal ${signal}`);
+        return;
+      }
+      isShuttingDown = true;
+
       console.log(`\n🛑 Sinal ${signal} recebido. Encerrando servidor...`);
       try {
         // Importar DatabaseInitializer dinamicamente
         const { DatabaseInitializer } = await import('../../infrastructure/config/DatabaseInitializer');
         await DatabaseInitializer.close();
-        
+
         server.close(() => {
           console.log('✅ Servidor encerrado com sucesso');
           process.exit(0);
         });
-        
+
         // Fallback se não encerrar em tempo hábil
         setTimeout(() => {
           console.error('⏱️ Timeout de shutdown. Forçando encerramento.');
@@ -55,8 +73,8 @@ export class ServerFactory {
       }
     };
 
-    // Registrar handlers de encerramento
-    process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
-    process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+    // Registrar handlers de encerramento (apenas uma vez cada)
+    process.once('SIGTERM', () => gracefulShutdown('SIGTERM'));
+    process.once('SIGINT', () => gracefulShutdown('SIGINT'));
   }
 }
