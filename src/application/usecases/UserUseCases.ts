@@ -55,6 +55,11 @@ export class UserUseCases {
       return null;
     }
 
+    // Verificar se a conta foi deletada
+    if (user.deleted_at) {
+      return null;
+    }
+
     // Atualizar último acesso
     await this.userRepository.updateLastAccess(id);
 
@@ -136,6 +141,11 @@ export class UserUseCases {
       return null;
     }
 
+    // Verificar se a conta foi deletada
+    if (existingUser.deleted_at) {
+      throw new Error('Não é possível atualizar uma conta desativada');
+    }
+
     // Verificar se email já está em uso por outro usuário
     if (userData.email && userData.email !== existingUser.email) {
       const userWithEmail = await this.userRepository.findByEmail(userData.email);
@@ -187,6 +197,11 @@ export class UserUseCases {
       return null;
     }
 
+    // Verificar se a conta foi deletada
+    if (existingUser.deleted_at) {
+      throw new Error('Não é possível atualizar uma conta desativada');
+    }
+
     // Verificar se email já está em uso por outro usuário
     if (userData.email && userData.email !== existingUser.email) {
       const userWithEmail = await this.userRepository.findByEmail(userData.email);
@@ -224,6 +239,11 @@ export class UserUseCases {
     const existingUser = await this.userRepository.findById(id);
     if (!existingUser) {
       return false;
+    }
+
+    // Verificar se a conta já foi deletada
+    if (existingUser.deleted_at) {
+      throw new Error('Esta conta já foi desativada');
     }
 
     return await this.userRepository.delete(id);

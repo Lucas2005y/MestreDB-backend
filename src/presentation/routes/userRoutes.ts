@@ -135,6 +135,7 @@ const userController = ControllerFactory.createUserController();
 // Rotas específicas do usuário logado (devem vir antes das rotas com parâmetros)
 router.get('/me', authenticateToken, apiRateLimit, userController.getMyProfile.bind(userController));
 router.put('/me', authenticateToken, apiRateLimit, userController.updateMyProfile.bind(userController));
+router.delete('/me', authenticateToken, sensitiveOperationsRateLimit, userController.deleteMyAccount.bind(userController));
 
 // Rotas administrativas
 router.post('/', authenticateToken, requireSuperUserForCreation, sensitiveOperationsRateLimit, userController.createUser.bind(userController));

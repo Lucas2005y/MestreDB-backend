@@ -678,4 +678,41 @@ export class UserController {
       }
     }
   }
+
+  /**
+   * Deleta a própria conta do usuário logado (soft delete)
+   * Superusuários não podem deletar suas próprias contas por esta rota
+   */
+  async deleteMyAccount(req: Request, res: Response): Promise<void> {
+    try {
+      const userId = req.user!.userId;
+      const isSuperUser = req.user!.is_superuser;
+
+      // Superusuários não podem deletar suas próprias contas
+      if (isSuperUser) {
+        res.status(403).json({
+          success: false,
+          error: 'Superusuários não podem deletar suas próprias contas',
+          message: 'Por segurança, contas de superusuário devem ser gerenciadas por outros administradores'
+        });
+        return;
+      }
+
+      await this.userUseCases.deleteUser(userId);
+
+      // Log de auditoria
+      AuditLogger.log(req, 'DELETE_OWN_ACCOUNT', 'user', userId, true);
+
+      res.json({
+        success: true,
+        message: 'Sua conta foi deletada com sucesso'
+      });
+    } catch (error: any) {
+      res.status(500).json({
+        success: false,
+        error: 'Erro ao deletar conta',
+        message: error.message
+      });
+    }
+  }
 }

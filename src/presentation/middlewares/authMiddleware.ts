@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { AuthUseCases } from '../../application/usecases/AuthUseCases';
 import { TokenPayload } from '../../application/services/TokenService';
 import { TokenBlacklistService } from '../../application/services/TokenBlacklistService';
+import { IUserRepository } from '../../domain/interfaces/IUserRepository';
 import { container } from '../../shared/container/DIContainer';
 import { TYPES } from '../../shared/container/ServiceRegistry';
 
@@ -47,6 +48,29 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
 
     // Validar token
     const decoded = await authUseCases.validateToken(token);
+
+    // Verificar se o usuário ainda existe e não foi deletado
+    const userRepository = container.resolve<IUserRepository>(TYPES.UserRepository);
+    const user = await userRepository.findOne({
+      where: { id: decoded.userId },
+      withDeleted: true
+    });
+
+    if (!user) {
+      res.status(401).json({
+        error: 'Usuário não encontrado',
+        message: 'Sua conta não existe mais'
+      });
+      return;
+    }
+
+    if (user.deleted_at) {
+      res.status(401).json({
+        error: 'Conta desativada',
+        message: 'Esta conta foi desativada e não pode mais ser acessada'
+      });
+      return;
+    }
 
     // Adicionar informações do usuário ao request
     req.user = {

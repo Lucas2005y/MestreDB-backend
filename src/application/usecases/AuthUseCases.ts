@@ -56,6 +56,12 @@ export class AuthUseCases {
     }
     console.log('✅ AuthUseCases.login - Usuário encontrado:', { id: user.id, email: user.email, hasPassword: !!user.password });
 
+    // Verificar se a conta foi deletada (soft delete)
+    if (user.deleted_at) {
+      console.log('❌ AuthUseCases.login - Conta deletada:', { id: user.id, deleted_at: user.deleted_at });
+      throw new Error('Esta conta foi desativada');
+    }
+
     // Verificar senha
     console.log('🔍 AuthUseCases.login - Verificando senha...');
     const isPasswordValid = await this.passwordService.verifyPassword(password, user.password);
@@ -158,6 +164,11 @@ export class AuthUseCases {
     const user = await this.userRepository.findById(decoded.userId);
     if (!user) {
       throw new Error('Usuário não encontrado');
+    }
+
+    // Verificar se a conta foi deletada (soft delete)
+    if (user.deleted_at) {
+      throw new Error('Esta conta foi desativada');
     }
 
     // Gerar novos tokens usando TokenService
