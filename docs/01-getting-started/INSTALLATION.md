@@ -99,6 +99,58 @@ ls .env*
 ### 4. Iniciar Banco de Dados (Docker)
 
 ```bash
+# Subir MySQL e phpMyAdmin
+npm run docker:up
+
+# Aguardar ~30 segundos para o MySQL inicializar
+```
+
+**Verificar se está rodando:**
+```bash
+docker ps
+
+# Deve mostrar:
+# - mestredb_mysql (porta 3307)
+# - mestredb_phpmyadmin (porta 8080)
+```
+
+**Acessar phpMyAdmin:**
+- URL: http://localhost:8080
+- Usuário: `root`
+- Senha: `root`
+
+---
+
+### 5. Aplicar Migrations do Banco de Dados
+
+⚠️ **IMPORTANTE:** Agora usamos migrations para criar as tabelas!
+
+```bash
+# Ver status das migrations
+npm run migration:show
+
+# Aplicar migrations pendentes
+npm run migration:run
+```
+
+**Saída esperada:**
+```
+[X] CreateUsersTable1732636800000
+Migration CreateUsersTable1732636800000 has been executed successfully.
+```
+
+**O que isso faz:**
+- ✅ Cria tabela `users` com todos os campos
+- ✅ Cria índices necessários
+- ✅ Registra migration aplicada
+
+**Mais sobre migrations:** [Guia de Migrations](../05-database/migrations/QUICK_REFERENCE.md)
+
+---
+
+### 6. Iniciar Aplicação
+
+```bash
 # Iniciar MySQL e phpMyAdmin
 npm run docker:up
 

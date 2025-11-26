@@ -14,14 +14,33 @@ MestreDB-backend/
 │   ├── domain/                   # 🎯 Camada de Domínio
 │   ├── application/              # 🔧 Camada de Aplicação
 │   ├── infrastructure/           # 🔌 Camada de Infraestrutura
+│   │   ├── config/              # Configurações
+│   │   └── database/
+│   │       ├── entities/        # Entidades TypeORM
+│   │       └── migrations/      # 🔄 Migrations do banco
 │   ├── presentation/             # 🌐 Camada de Apresentação
 │   ├── main/                     # 🏭 Camada Principal (Factory)
 │   ├── shared/                   # 🔄 Código Compartilhado
 │   ├── types/                    # 🏷️ Tipos TypeScript
+│   ├── __tests__/                # 🧪 Testes (200+ testes)
+│   │   ├── unit/                # Testes unitários
+│   │   ├── integration/         # Testes de integração
+│   │   └── mocks/               # Mocks para testes
 │   └── index.ts                  # Ponto de entrada
 │
-├── docs/                         # 📚 Documentação
-├── CleanArchitectureGuide/       # 📖 Guias de arquitetura
+├── docs/                         # 📚 Documentação completa
+│   ├── 01-getting-started/      # Início rápido
+│   ├── 02-architecture/         # Arquitetura
+│   ├── 03-development/          # Desenvolvimento
+│   ├── 04-features/             # Funcionalidades
+│   ├── 05-database/             # Banco + Migrations
+│   ├── 06-api-reference/        # API docs
+│   ├── 07-deployment/           # Deploy
+│   ├── 08-troubleshooting/      # FAQ
+│   ├── 09-roadmap/              # Melhorias
+│   └── 10-contributing/         # Como contribuir
+│
+├── logs/                         # 📝 Logs da aplicação
 ├── dist/                         # 📦 Código compilado
 ├── coverage/                     # 📊 Relatórios de cobertura
 ├── node_modules/                 # 📦 Dependências
@@ -31,6 +50,7 @@ MestreDB-backend/
 ├── .env.production               # ⚙️ Config produção
 ├── .env.example                  # ⚙️ Template
 │
+├── ormconfig.ts                  # ⚙️ Config TypeORM (migrations)
 ├── docker-compose.yml            # 🐳 Config Docker
 ├── package.json                  # 📦 Dependências e scripts
 ├── tsconfig.json                 # ⚙️ Config TypeScript

@@ -5,6 +5,7 @@
 Antes de começar, certifique-se de ter:
 - ✅ [Instalado o projeto](./INSTALLATION.md)
 - ✅ Docker rodando
+- ✅ **Migrations aplicadas** (`npm run migration:run`)
 - ✅ Aplicação iniciada (`npm run dev`)
 
 ---
@@ -199,6 +200,35 @@ curl -X GET "http://localhost:3000/api/usuarios?page=1&limit=10" \
 
 ---
 
+---
+
+### 7. Rodar Testes (Opcional)
+
+```bash
+# Rodar todos os testes
+npm test
+
+# Rodar apenas testes unitários
+npm run test:unit
+
+# Rodar apenas testes de integração
+npm run test:integration
+
+# Ver cobertura de testes
+npm run test:coverage
+```
+
+**Resultado esperado:**
+```
+Test Suites: 7 passed, 7 total
+Tests:       220 passed, 220 total
+Time:        ~20s
+```
+
+**Mais sobre testes:** [Guia de Testes](../03-development/TESTING_GUIDE.md)
+
+---
+
 ## 🎓 Conceitos Básicos
 
 ### Autenticação JWT
@@ -361,6 +391,9 @@ docker volume prune
 
 # Subir novamente
 npm run docker:up
+
+# ⚠️ IMPORTANTE: Aplicar migrations novamente!
+npm run migration:run
 
 # Aguardar e reiniciar app
 npm run dev
