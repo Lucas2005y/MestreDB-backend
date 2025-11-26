@@ -26,7 +26,12 @@
     "test": "cross-env NODE_ENV=test jest",
     "test:watch": "cross-env NODE_ENV=test jest --watch",
     "test:coverage": "cross-env NODE_ENV=test jest --coverage",
-    "env:docs": "ts-node src/scripts/show-env-docs.ts"
+    "env:docs": "ts-node src/scripts/show-env-docs.ts",
+    "logs": "pwsh -File scripts/view-logs.ps1",
+    "logs:error": "pwsh -File scripts/view-logs.ps1 -Type error",
+    "logs:http": "pwsh -File scripts/view-logs.ps1 -Type http",
+    "logs:follow": "pwsh -File scripts/view-logs.ps1 -Follow",
+    "logs:all": "pwsh -File scripts/view-logs.ps1 -Type all"
   },
   "repository": {
     "type": "git",

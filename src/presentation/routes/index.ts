@@ -8,6 +8,9 @@ console.log('✅ userRoutes importado');
 import authRoutes from './authRoutes';
 console.log('✅ authRoutes importado');
 
+import healthRoutes from './healthRoutes';
+console.log('✅ healthRoutes importado');
+
 const router = Router();
 console.log('✅ Router criado');
 
@@ -27,15 +30,8 @@ router.use('/auth', (req, res, next) => {
 
 router.use('/usuarios', userRoutes);
 
-// Rota de health check
-router.get('/health', (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: 'API está funcionando',
-    timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'development'
-  });
-});
+// Rotas de health check (completo)
+router.use('/health', healthRoutes);
 
 // Rota raiz da API
 router.get('/', (req, res) => {
