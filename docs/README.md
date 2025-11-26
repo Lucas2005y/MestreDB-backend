@@ -225,15 +225,26 @@ Problemas comuns e soluções.
 
 ---
 
-### 9️⃣ Contributing (Contribuindo)
+### 9️⃣ Roadmap (Melhorias Futuras)
+Planejamento de melhorias e evolução do projeto.
+
+- **[Melhorias Sugeridas](./09-roadmap/IMPROVEMENTS.md)**
+  - Roadmap completo de melhorias
+  - Priorização por impacto vs esforço
+  - Implementações recomendadas por fase
+  - Quick wins e investimentos estratégicos
+
+---
+
+### 🔟 Contributing (Contribuindo)
 Como contribuir para o projeto.
 
-- **[Guia de Contribuição](./09-contributing/CONTRIBUTING.md)**
+- **[Guia de Contribuição](./10-contributing/CONTRIBUTING.md)**
   - Como contribuir
   - Pull requests
   - Code review
 
-- **[Changelog](./09-contributing/CHANGELOG.md)**
+- **[Changelog](./10-contributing/CHANGELOG.md)**
   - Histórico de versões
   - Mudanças importantes
 

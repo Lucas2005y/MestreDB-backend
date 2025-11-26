@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { logError } from '../../shared/utils/logger';
 
 export interface ApiError extends Error {
   statusCode?: number;
@@ -14,14 +15,14 @@ export const errorHandler = (
   const statusCode = error.statusCode || 500;
   const isProduction = process.env.NODE_ENV === 'production';
 
-  // Log do erro
-  console.error(`[${new Date().toISOString()}] Error ${statusCode}:`, {
-    message: error.message,
-    stack: error.stack,
+  // Log estruturado do erro
+  logError(error, {
+    statusCode,
     url: req.url,
     method: req.method,
     ip: req.ip,
-    userAgent: req.get('User-Agent')
+    userAgent: req.get('User-Agent'),
+    userId: (req as any).user?.id,
   });
 
   // Resposta para o cliente

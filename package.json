@@ -25,7 +25,8 @@
     "format": "prettier --write \"src/**/*.ts\"",
     "test": "cross-env NODE_ENV=test jest",
     "test:watch": "cross-env NODE_ENV=test jest --watch",
-    "test:coverage": "cross-env NODE_ENV=test jest --coverage"
+    "test:coverage": "cross-env NODE_ENV=test jest --coverage",
+    "env:docs": "ts-node src/scripts/show-env-docs.ts"
   },
   "repository": {
     "type": "git",
@@ -48,14 +49,16 @@
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "express-rate-limit": "^8.1.0",
-    "joi": "^18.0.1",
+    "joi": "^18.0.2",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.19.2",
     "mysql2": "^3.15.3",
     "reflect-metadata": "^0.2.2",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
-    "typeorm": "^0.3.27"
+    "typeorm": "^0.3.27",
+    "winston": "^3.18.3",
+    "winston-daily-rotate-file": "^5.0.0"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
@@ -67,6 +70,7 @@
     "@types/mongoose": "^5.11.96",
     "@types/node": "^24.9.1",
     "@types/supertest": "^6.0.3",
+    "@types/winston": "^2.4.4",
     "cross-env": "^10.1.0",
     "jest": "^30.2.0",
     "nodemon": "^3.1.10",
