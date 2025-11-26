@@ -86,16 +86,44 @@ describe('Users Endpoints', () => {
     });
 
     it('deve rejeitar usuário não-superusuário', async () => {
-      if (!normalUserToken) {
-        console.warn('Pulando teste: usuário normal não disponível');
+      // Criar usuário normal temporário para teste
+      const createResponse = await request(app)
+        .post('/api/usuarios')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({
+          name: 'Usuario Normal Teste',
+          email: 'normal.test@example.com',
+          password: 'senha123',
+          is_superuser: false,
+        });
+
+      if (createResponse.status !== 201) {
+        console.warn('Pulando teste: não foi possível criar usuário normal');
         return;
       }
 
+      // Fazer login com usuário normal
+      const loginResponse = await request(app)
+        .post('/api/auth/login')
+        .send({
+          email: 'normal.test@example.com',
+          password: 'senha123',
+        });
+
+      const tempNormalToken = loginResponse.body.token;
+      const tempUserId = createResponse.body.data.id;
+
+      // Tentar listar usuários (deve falhar)
       const response = await request(app)
         .get('/api/usuarios')
-        .set('Authorization', `Bearer ${normalUserToken}`);
+        .set('Authorization', `Bearer ${tempNormalToken}`);
 
       expect(response.status).toBe(403);
+
+      // Limpar usuário temporário
+      await request(app)
+        .delete(`/api/usuarios/${tempUserId}`)
+        .set('Authorization', `Bearer ${adminToken}`);
     });
   });
 

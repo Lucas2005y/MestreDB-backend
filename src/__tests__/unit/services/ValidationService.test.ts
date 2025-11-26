@@ -17,7 +17,9 @@ describe('ValidationService', () => {
       ];
 
       validEmails.forEach((email) => {
-        expect(() => validationService.validateEmail(email)).not.toThrow();
+        const result = validationService.validateEmail(email);
+        expect(result.isValid).toBe(true);
+        expect(result.errors).toHaveLength(0);
       });
     });
 
@@ -31,45 +33,80 @@ describe('ValidationService', () => {
       ];
 
       invalidEmails.forEach((email) => {
-        expect(() => validationService.validateEmail(email)).toThrow();
+        const result = validationService.validateEmail(email);
+        expect(result.isValid).toBe(false);
+        expect(result.errors.length).toBeGreaterThan(0);
       });
     });
 
     it('deve rejeitar email vazio', () => {
-      expect(() => validationService.validateEmail('')).toThrow();
+      const result = validationService.validateEmail('');
+      expect(result.isValid).toBe(false);
+      expect(result.errors.length).toBeGreaterThan(0);
     });
 
     it('deve rejeitar email muito longo', () => {
       const longEmail = 'a'.repeat(250) + '@example.com';
-      expect(() => validationService.validateEmail(longEmail)).toThrow();
+      const result = validationService.validateEmail(longEmail);
+      expect(result.isValid).toBe(false);
+      expect(result.errors.length).toBeGreaterThan(0);
     });
   });
 
-  describe('validateName', () => {
-    it('deve aceitar nomes válidos', () => {
-      const validNames = [
-        'João Silva',
-        'Maria da Silva',
-        'José',
-        'Ana Paula Costa',
-      ];
-
-      validNames.forEach((name) => {
-        expect(() => validationService.validateName(name)).not.toThrow();
-      });
+  describe('validateRequired', () => {
+    it('deve aceitar valores válidos', () => {
+      const result = validationService.validateRequired('João Silva', 'name');
+      expect(result.isValid).toBe(true);
+      expect(result.errors).toHaveLength(0);
     });
 
-    it('deve rejeitar nome vazio', () => {
-      expect(() => validationService.validateName('')).toThrow();
+    it('deve rejeitar valor vazio', () => {
+      const result = validationService.validateRequired('', 'name');
+      expect(result.isValid).toBe(false);
+      expect(result.errors.length).toBeGreaterThan(0);
     });
 
-    it('deve rejeitar nome muito curto', () => {
-      expect(() => validationService.validateName('A')).toThrow();
+    it('deve rejeitar valor null', () => {
+      const result = validationService.validateRequired(null, 'name');
+      expect(result.isValid).toBe(false);
+      expect(result.errors.length).toBeGreaterThan(0);
     });
 
-    it('deve rejeitar nome muito longo', () => {
-      const longName = 'A'.repeat(100);
-      expect(() => validationService.validateName(longName)).toThrow();
+    it('deve rejeitar valor undefined', () => {
+      const result = validationService.validateRequired(undefined, 'name');
+      expect(result.isValid).toBe(false);
+      expect(result.errors.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe('validateStringLength', () => {
+    it('deve aceitar string dentro do limite', () => {
+      const result = validationService.validateStringLength('João Silva', 'name', 2, 80);
+      expect(result.isValid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it('deve rejeitar string muito curta', () => {
+      const result = validationService.validateStringLength('A', 'name', 2, 80);
+      expect(result.isValid).toBe(false);
+      expect(result.errors.length).toBeGreaterThan(0);
+    });
+
+    it('deve rejeitar string muito longa', () => {
+      const longString = 'A'.repeat(81);
+      const result = validationService.validateStringLength(longString, 'name', 2, 80);
+      expect(result.isValid).toBe(false);
+      expect(result.errors.length).toBeGreaterThan(0);
+    });
+
+    it('deve aceitar string sem limite mínimo', () => {
+      const result = validationService.validateStringLength('Test', 'name', undefined, 80);
+      expect(result.isValid).toBe(true);
+    });
+
+    it('deve aceitar string sem limite máximo', () => {
+      const result = validationService.validateStringLength('Test', 'name', 2, undefined);
+      expect(result.isValid).toBe(true);
     });
   });
 
@@ -78,39 +115,30 @@ describe('ValidationService', () => {
       const validIds = [1, 10, 100, 999999];
 
       validIds.forEach((id) => {
-        expect(() => validationService.validateId(id)).not.toThrow();
+        const result = validationService.validateId(id);
+        expect(result.isValid).toBe(true);
+        expect(result.errors).toHaveLength(0);
       });
     });
 
     it('deve rejeitar ID zero', () => {
-      expect(() => validationService.validateId(0)).toThrow();
+      const result = validationService.validateId(0);
+      expect(result.isValid).toBe(false);
+      expect(result.errors.length).toBeGreaterThan(0);
     });
 
     it('deve rejeitar ID negativo', () => {
-      expect(() => validationService.validateId(-1)).toThrow();
+      const result = validationService.validateId(-1);
+      expect(result.isValid).toBe(false);
+      expect(result.errors.length).toBeGreaterThan(0);
     });
 
     it('deve rejeitar ID não numérico', () => {
-      expect(() => validationService.validateId(NaN)).toThrow();
-      expect(() => validationService.validateId(Infinity)).toThrow();
-    });
-  });
+      const nanResult = validationService.validateId(NaN);
+      expect(nanResult.isValid).toBe(false);
 
-  describe('sanitizeInput', () => {
-    it('deve remover espaços extras', () => {
-      const result = validationService.sanitizeInput('  texto  com  espaços  ');
-      expect(result).toBe('texto com espaços');
-    });
-
-    it('deve remover caracteres perigosos', () => {
-      const result = validationService.sanitizeInput('<script>alert("xss")</script>');
-      expect(result).not.toContain('<script>');
-      expect(result).not.toContain('</script>');
-    });
-
-    it('deve retornar string vazia para input vazio', () => {
-      expect(validationService.sanitizeInput('')).toBe('');
-      expect(validationService.sanitizeInput('   ')).toBe('');
+      const infResult = validationService.validateId(Infinity);
+      expect(infResult.isValid).toBe(false);
     });
   });
 });
