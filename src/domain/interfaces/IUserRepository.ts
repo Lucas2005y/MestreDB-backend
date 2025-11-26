@@ -22,4 +22,10 @@ export interface IUserRepository {
   delete(id: number): Promise<boolean>;
   updateLastAccess(id: number): Promise<void>;
   updateLastLogin(id: number): Promise<void>;
+
+  // Soft Delete methods
+  findDeleted(page: number, limit: number): Promise<{ users: User[]; total: number }>;
+  findOne(options: { where: any; withDeleted?: boolean }): Promise<User | null>;
+  restore(id: number): Promise<void>;
+  hardDelete(id: number): Promise<void>;
 }

@@ -94,7 +94,8 @@ export class UserRepository implements IUserRepository {
   }
 
   async delete(id: number): Promise<boolean> {
-    const result = await this.repository.delete(id);
+    // Soft delete usando TypeORM
+    const result = await this.repository.softDelete(id);
     return result.affected !== null && result.affected !== undefined && result.affected > 0;
   }
 
@@ -112,6 +113,43 @@ export class UserRepository implements IUserRepository {
     });
   }
 
+  async findDeleted(page: number, limit: number): Promise<{ users: User[]; total: number }> {
+    const skip = (page - 1) * limit;
+
+    const [userEntities, total] = await this.repository.findAndCount({
+      where: {},
+      withDeleted: true,
+      skip,
+      take: limit,
+      order: {
+        deleted_at: 'DESC'
+      }
+    });
+
+    // Filtrar apenas os deletados
+    const deletedEntities = userEntities.filter(entity => entity.deleted_at !== null);
+    const users = deletedEntities.map(entity => this.mapToDomainEntity(entity));
+
+    return { users, total: deletedEntities.length };
+  }
+
+  async findOne(options: { where: any; withDeleted?: boolean }): Promise<User | null> {
+    const userEntity = await this.repository.findOne({
+      where: options.where,
+      withDeleted: options.withDeleted || false
+    });
+
+    return userEntity ? this.mapToDomainEntity(userEntity) : null;
+  }
+
+  async restore(id: number): Promise<void> {
+    await this.repository.restore(id);
+  }
+
+  async hardDelete(id: number): Promise<void> {
+    await this.repository.delete(id);
+  }
+
   private mapToDomainEntity(userEntity: UserEntity): User {
     return User.createUnsafe(
       userEntity.id,
@@ -122,7 +160,8 @@ export class UserRepository implements IUserRepository {
       userEntity.last_access,
       userEntity.last_login,
       userEntity.created_at,
-      userEntity.updated_at
+      userEntity.updated_at,
+      userEntity.deleted_at
     );
   }
 }

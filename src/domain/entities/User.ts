@@ -10,7 +10,8 @@ export class User {
     public readonly last_access: Date = new Date(),
     public readonly last_login?: Date,
     public readonly created_at: Date = new Date(),
-    public readonly updated_at: Date = new Date()
+    public readonly updated_at: Date = new Date(),
+    public readonly deleted_at?: Date
   ) {}
 
   /**
@@ -25,7 +26,8 @@ export class User {
     last_access: Date = new Date(),
     last_login?: Date,
     created_at: Date = new Date(),
-    updated_at: Date = new Date()
+    updated_at: Date = new Date(),
+    deleted_at?: Date
   ): Either<ValidationError, User> {
     // Validar nome
     const nameValidation = this.validateName(name);
@@ -54,7 +56,8 @@ export class User {
       last_access,
       last_login,
       created_at,
-      updated_at
+      updated_at,
+      deleted_at
     ));
   }
 
@@ -70,9 +73,10 @@ export class User {
     last_access: Date = new Date(),
     last_login?: Date,
     created_at: Date = new Date(),
-    updated_at: Date = new Date()
+    updated_at: Date = new Date(),
+    deleted_at?: Date
   ): User {
-    return new User(id, name, email, password, is_superuser, last_access, last_login, created_at, updated_at);
+    return new User(id, name, email, password, is_superuser, last_access, last_login, created_at, updated_at, deleted_at);
   }
 
   /**
@@ -155,7 +159,8 @@ export class User {
       new Date(),
       this.last_login,
       this.created_at,
-      new Date()
+      new Date(),
+      this.deleted_at
     );
   }
 
@@ -169,7 +174,8 @@ export class User {
       this.last_access,
       new Date(),
       this.created_at,
-      new Date()
+      new Date(),
+      this.deleted_at
     );
   }
 
@@ -210,7 +216,8 @@ export class User {
       this.last_access,
       this.last_login,
       this.created_at,
-      new Date()
+      new Date(),
+      this.deleted_at
     ));
   }
 
@@ -224,7 +231,8 @@ export class User {
       last_access: this.last_access,
       last_login: this.last_login,
       created_at: this.created_at,
-      updated_at: this.updated_at
+      updated_at: this.updated_at,
+      deleted_at: this.deleted_at
     };
   }
 }

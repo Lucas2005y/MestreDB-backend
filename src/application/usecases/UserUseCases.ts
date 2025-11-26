@@ -262,4 +262,80 @@ export class UserUseCases {
       updated_at: user.updated_at
     };
   }
+
+  // ========================================
+  // SOFT DELETE METHODS
+  // ========================================
+
+  async getDeletedUsers(page: number, limit: number): Promise<PaginatedResponse<UserResponseDTO>> {
+    const { users, total } = await this.userRepository.findDeleted(page, limit);
+
+    const data = users.map(user => this.mapToResponseDTO(user));
+
+    return PaginationHelper.createResponse(data, {
+      page,
+      limit,
+      total,
+    });
+  }
+
+  async restoreUser(id: number): Promise<UserResponseDTO> {
+    const { NotFoundError } = await import('../../shared/errors/NotFoundError');
+    const { BadRequestError } = await import('../../shared/errors/BadRequestError');
+    const { ConflictError } = await import('../../shared/errors/ConflictError');
+
+    // Buscar usuário deletado
+    const user = await this.userRepository.findOne({
+      where: { id },
+      withDeleted: true,
+    });
+
+    if (!user) {
+      throw new NotFoundError('Usuário não encontrado');
+    }
+
+    if (!user.deleted_at) {
+      throw new BadRequestError('Usuário não está deletado');
+    }
+
+    // Verificar se email não foi reutilizado
+    const existingUser = await this.userRepository.findByEmail(user.email);
+    if (existingUser && existingUser.id !== id) {
+      throw new ConflictError('Email já está em uso por outro usuário');
+    }
+
+    await this.userRepository.restore(id);
+
+    const restoredUser = await this.userRepository.findById(id);
+    return this.mapToResponseDTO(restoredUser!);
+  }
+
+  async permanentlyDeleteUser(id: number, requestingUserId: number): Promise<void> {
+    const { NotFoundError } = await import('../../shared/errors/NotFoundError');
+    const { ForbiddenError } = await import('../../shared/errors/ForbiddenError');
+    const { logger } = await import('../../shared/utils/logger');
+
+    // Não pode deletar própria conta permanentemente
+    if (id === requestingUserId) {
+      throw new ForbiddenError('Não é possível deletar permanentemente sua própria conta');
+    }
+
+    const user = await this.userRepository.findOne({
+      where: { id },
+      withDeleted: true,
+    });
+
+    if (!user) {
+      throw new NotFoundError('Usuário não encontrado');
+    }
+
+    // Log de auditoria
+    logger.warn('Hard delete executado', {
+      userId: id,
+      deletedBy: requestingUserId,
+      email: user.email,
+    });
+
+    await this.userRepository.hardDelete(id);
+  }
 }

@@ -52,7 +52,7 @@ export class UserRepositoryTestAdapter implements IUserRepository {
     });
 
     const users = userEntities.map(entity => this.mapToDomainEntity(entity));
-    
+
     return { users, total };
   }
 
@@ -108,5 +108,36 @@ export class UserRepositoryTestAdapter implements IUserRepository {
       userEntity.created_at,
       userEntity.updated_at
     );
+  }
+
+  async findDeleted(page: number, limit: number): Promise<{ users: User[]; total: number }> {
+    const skip = (page - 1) * limit;
+    const [userEntities, total] = await this.repository.findAndCount({
+      where: {},
+      withDeleted: true,
+      skip,
+      take: limit,
+      order: { deleted_at: 'DESC' }
+    });
+
+    const deletedEntities = userEntities.filter(entity => entity.deleted_at !== null);
+    const users = deletedEntities.map(entity => this.mapToDomainEntity(entity));
+    return { users, total: deletedEntities.length };
+  }
+
+  async findOne(options: { where: any; withDeleted?: boolean }): Promise<User | null> {
+    const userEntity = await this.repository.findOne({
+      where: options.where,
+      withDeleted: options.withDeleted || false
+    });
+    return userEntity ? this.mapToDomainEntity(userEntity) : null;
+  }
+
+  async restore(id: number): Promise<void> {
+    await this.repository.restore(id);
+  }
+
+  async hardDelete(id: number): Promise<void> {
+    await this.repository.delete(id);
   }
 }

@@ -63,14 +63,14 @@ export class MockUserRepository implements IUserRepository {
 
   async findAll(page?: number, limit?: number): Promise<{ users: User[]; total: number }> {
     const allUsers = [...this.users];
-    
+
     if (page && limit) {
       const startIndex = (page - 1) * limit;
       const endIndex = startIndex + limit;
       const paginatedUsers = allUsers.slice(startIndex, endIndex);
       return { users: paginatedUsers, total: allUsers.length };
     }
-    
+
     return { users: allUsers, total: allUsers.length };
   }
 
@@ -81,7 +81,7 @@ export class MockUserRepository implements IUserRepository {
     }
 
     const currentUser = this.users[userIndex];
-    
+
     // Verificar se o email já está em uso por outro usuário
     if (userData.email && userData.email !== currentUser.email) {
       const existingUser = this.users.find(u => u.email === userData.email && u.id !== id);
@@ -128,5 +128,36 @@ export class MockUserRepository implements IUserRepository {
 
     const updatedUser = this.users[userIndex].updateLastLogin();
     this.users[userIndex] = updatedUser;
+  }
+
+  async findDeleted(page: number, limit: number): Promise<{ users: User[]; total: number }> {
+    const deletedUsers = this.users.filter(u => u.deleted_at !== undefined);
+    const start = (page - 1) * limit;
+    const end = start + limit;
+    return {
+      users: deletedUsers.slice(start, end),
+      total: deletedUsers.length
+    };
+  }
+
+  async findOne(options: { where: any; withDeleted?: boolean }): Promise<User | null> {
+    const user = this.users.find(u => {
+      if (options.where.id && u.id !== options.where.id) return false;
+      if (options.where.email && u.email !== options.where.email) return false;
+      if (!options.withDeleted && u.deleted_at) return false;
+      return true;
+    });
+    return user || null;
+  }
+
+  async restore(id: number): Promise<void> {
+    const user = this.users.find(u => u.id === id);
+    if (user) {
+      (user as any).deleted_at = undefined;
+    }
+  }
+
+  async hardDelete(id: number): Promise<void> {
+    this.users = this.users.filter(u => u.id !== id);
   }
 }

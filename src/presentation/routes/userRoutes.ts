@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { UserController } from '../controllers/UserController';
 import { authenticateToken, optionalAuth } from '../middlewares/authMiddleware';
-import { 
+import {
   requireSuperUser,
   requireOwnershipOrSuperUser,
   requireOwnershipOrSuperUserForModification,
@@ -150,5 +150,14 @@ router.put('/:id', authenticateToken, requireOwnershipOrSuperUserForModification
 
 // Rotas de exclusão
 router.delete('/:id', authenticateToken, requireOwnershipOrSuperUserForDeletion, sensitiveOperationsRateLimit, userController.deleteUser.bind(userController));
+
+// ========================================
+// SOFT DELETE ROUTES (Admin only)
+// ========================================
+
+// IMPORTANTE: Rotas específicas devem vir ANTES das rotas com parâmetros
+router.get('/deleted/list', authenticateToken, requireSuperUser, apiRateLimit, userController.getDeleted.bind(userController));
+router.post('/:id/restore', authenticateToken, requireSuperUser, sensitiveOperationsRateLimit, userController.restore.bind(userController));
+router.delete('/:id/permanent', authenticateToken, requireSuperUser, sensitiveOperationsRateLimit, userController.permanentDelete.bind(userController));
 
 export default router;

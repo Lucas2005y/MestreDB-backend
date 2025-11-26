@@ -54,10 +54,11 @@ export class PaginationHelper {
    */
   static validateParams(params: Partial<PaginationParams>): PaginationParams {
     const page = Math.max(1, Number(params.page) || this.DEFAULT_PAGE);
-    const limit = Math.min(
-      this.MAX_LIMIT,
-      Math.max(this.MIN_LIMIT, Number(params.limit) || this.DEFAULT_LIMIT)
-    );
+
+    const rawLimit = Number(params.limit) || this.DEFAULT_LIMIT;
+    const limit = rawLimit <= 0
+      ? this.DEFAULT_LIMIT
+      : Math.min(this.MAX_LIMIT, rawLimit);
 
     const sortOrder = params.sortOrder?.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
 

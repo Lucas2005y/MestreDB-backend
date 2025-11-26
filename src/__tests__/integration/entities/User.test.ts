@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, Index } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, Index } from 'typeorm';
 
 @Entity('users')
 @Index('users_email_unique', ['email'], { unique: true })
@@ -31,4 +31,7 @@ export class UserTest {
 
   @UpdateDateColumn({ type: 'datetime' })
   updated_at!: Date;
+
+  @DeleteDateColumn({ type: 'datetime', nullable: true })
+  deleted_at?: Date;
 }

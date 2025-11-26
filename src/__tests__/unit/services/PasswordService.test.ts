@@ -79,36 +79,40 @@ describe('PasswordService', () => {
       ];
 
       strongPasswords.forEach((password) => {
-        expect(() => passwordService.validatePasswordStrength(password)).not.toThrow();
+        const result = passwordService.validatePasswordStrength(password);
+        expect(result.isValid).toBe(true);
+        expect(result.errors).toHaveLength(0);
       });
     });
 
     it('deve rejeitar senha muito curta', () => {
-      expect(() => passwordService.validatePasswordStrength('Abc@1')).toThrow('muito curta');
+      const result = passwordService.validatePasswordStrength('Abc@1');
+      expect(result.isValid).toBe(false);
+      expect(result.errors.some(e => e.includes('8 caracteres'))).toBe(true);
     });
 
     it('deve rejeitar senha sem letra maiúscula', () => {
-      expect(() => passwordService.validatePasswordStrength('minhasenha@123')).toThrow(
-        'maiúscula'
-      );
+      const result = passwordService.validatePasswordStrength('minhasenha@123');
+      expect(result.isValid).toBe(false);
+      expect(result.errors.some(e => e.includes('maiúscula'))).toBe(true);
     });
 
     it('deve rejeitar senha sem letra minúscula', () => {
-      expect(() => passwordService.validatePasswordStrength('MINHASENHA@123')).toThrow(
-        'minúscula'
-      );
+      const result = passwordService.validatePasswordStrength('MINHASENHA@123');
+      expect(result.isValid).toBe(false);
+      expect(result.errors.some(e => e.includes('minúscula'))).toBe(true);
     });
 
     it('deve rejeitar senha sem número', () => {
-      expect(() => passwordService.validatePasswordStrength('MinhaSenha@Forte')).toThrow(
-        'número'
-      );
+      const result = passwordService.validatePasswordStrength('MinhaSenha@Forte');
+      expect(result.isValid).toBe(false);
+      expect(result.errors.some(e => e.includes('número'))).toBe(true);
     });
 
     it('deve rejeitar senha sem caractere especial', () => {
-      expect(() => passwordService.validatePasswordStrength('MinhaSenha123')).toThrow(
-        'especial'
-      );
+      const result = passwordService.validatePasswordStrength('MinhaSenha123');
+      expect(result.isValid).toBe(false);
+      expect(result.errors.some(e => e.includes('especial'))).toBe(true);
     });
   });
 });

@@ -39,8 +39,12 @@ describe('TokenService', () => {
       expect(payload?.type).toBe('access');
     });
 
-    it('deve gerar tokens diferentes para o mesmo usuário', () => {
+    it('deve gerar tokens diferentes para o mesmo usuário', async () => {
       const token1 = tokenService.generateAccessToken(mockUserData);
+
+      // Aguardar 1 segundo para garantir iat diferente
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
       const token2 = tokenService.generateAccessToken(mockUserData);
 
       expect(token1).not.toBe(token2); // iat diferente

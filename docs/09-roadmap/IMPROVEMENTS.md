@@ -404,9 +404,9 @@ git commit -m "feat: adicionar telefone ao usuário"
 
 ### 7. Soft Delete
 
-**Status:** ❌ Não implementado
+**Status:** ✅ Implementado
 **Impacto:** Médio - Melhora auditoria
-**Esforço:** Médio (4-6 horas)
+**Esforço:** Médio (4-6 horas) - ✅ Concluído
 
 **Descrição:**
 Adicionar `deleted_at` nas entidades para não deletar fisicamente.

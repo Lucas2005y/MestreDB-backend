@@ -569,4 +569,113 @@ export class UserController {
       }
     }
   }
+
+  // ========================================
+  // SOFT DELETE METHODS
+  // ========================================
+
+  async getDeleted(req: Request, res: Response): Promise<void> {
+    try {
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+
+      const result = await this.userUseCases.getDeletedUsers(page, limit);
+
+      res.json({
+        success: true,
+        data: result.data,
+        pagination: result.pagination
+      });
+    } catch (error: any) {
+      res.status(500).json({
+        success: false,
+        error: 'Erro ao listar usuários deletados',
+        message: error.message
+      });
+    }
+  }
+
+  async restore(req: Request, res: Response): Promise<void> {
+    try {
+      const userId = parseInt(req.params.id);
+
+      const user = await this.userUseCases.restoreUser(userId);
+
+      // Log de auditoria
+      AuditLogger.log(req, 'RESTORE_USER', 'user', userId, true, { email: user.email });
+
+      res.json({
+        success: true,
+        data: user,
+        message: 'Usuário restaurado com sucesso'
+      });
+    } catch (error: any) {
+      if (error.name === 'NotFoundError') {
+        res.status(404).json({
+          success: false,
+          error: error.message
+        });
+      } else if (error.name === 'BadRequestError') {
+        res.status(400).json({
+          success: false,
+          error: error.message
+        });
+      } else if (error.name === 'ConflictError') {
+        res.status(409).json({
+          success: false,
+          error: error.message
+        });
+      } else {
+        res.status(500).json({
+          success: false,
+          error: 'Erro ao restaurar usuário',
+          message: error.message
+        });
+      }
+    }
+  }
+
+  async permanentDelete(req: Request, res: Response): Promise<void> {
+    try {
+      const userId = parseInt(req.params.id);
+      const requestingUserId = req.user!.userId;
+      const confirm = req.query.confirm === 'true';
+
+      if (!confirm) {
+        res.status(400).json({
+          success: false,
+          error: 'Confirmação obrigatória para deleção permanente'
+        });
+        return;
+      }
+
+      await this.userUseCases.permanentlyDeleteUser(userId, requestingUserId);
+
+      // Log de auditoria
+      AuditLogger.log(req, 'HARD_DELETE_USER', 'user', userId, true, { permanent: true });
+
+      res.json({
+        success: true,
+        message: 'Usuário deletado permanentemente'
+      });
+    } catch (error: any) {
+      if (error.name === 'NotFoundError') {
+        res.status(404).json({
+          success: false,
+          error: error.message
+        });
+      } else if (error.name === 'ForbiddenError') {
+        res.status(403).json({
+          success: false,
+          error: error.message
+        });
+      } else {
+        res.status(500).json({
+          success: false,
+          error: 'Erro ao deletar usuário permanentemente',
+          message: error.message
+        });
+      }
+    }
+  }
 }
