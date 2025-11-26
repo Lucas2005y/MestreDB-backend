@@ -1,316 +1,220 @@
-# 📚 Documentação MestreDB Backend
+# 📚 Documentação - MestreDB Backend
 
-Bem-vindo à documentação completa do MestreDB Backend! Este guia está organizado para facilitar o acesso rápido às informações que você precisa.
-
-## 🎯 Início Rápido
-
-### Para Desenvolvedores Novos
-1. 📖 [Guia de Instalação](./01-getting-started/INSTALLATION.md)
-2. 🚀 [Primeiros Passos](./01-getting-started/QUICK_START.md)
-3. 🏗️ [Visão Geral da Arquitetura](./02-architecture/OVERVIEW.md)
-
-### Para Desenvolvedores Experientes
-- 🔧 [Guia de Desenvolvimento](./03-development/DEVELOPMENT_GUIDE.md)
-- 🧪 [Guia de Testes](./03-development/TESTING_GUIDE.md)
-- 🔐 [Segurança e Autenticação](./04-features/SECURITY.md)
-
-### Para Deploy e Produção
-- 🚀 [Guia de Deploy](./05-deployment/DEPLOYMENT.md)
-- ⚙️ [Configuração de Ambientes](./05-deployment/ENVIRONMENT_SETUP.md)
-- ✅ [Preparação para Produção](./05-deployment/PRODUCTION_READINESS.md)
+Bem-vindo à documentação completa do MestreDB Backend!
 
 ---
 
-## 📂 Estrutura da Documentação
+## 🗂️ Estrutura da Documentação
 
-### 1️⃣ Getting Started (Começando)
-Tudo que você precisa para começar a trabalhar no projeto.
+### 01. 🚀 [Getting Started](./01-getting-started/)
+**Comece aqui!** Tudo que você precisa para começar a usar o projeto.
 
-- **[Instalação](./01-getting-started/INSTALLATION.md)**
-  - Pré-requisitos
-  - Instalação de dependências
-  - Configuração inicial
-  - Docker setup
+- [Quick Start](./01-getting-started/QUICK_START.md) - Início rápido
+- [Installation](./01-getting-started/INSTALLATION.md) - Instalação detalhada
+- [Project Structure](./01-getting-started/PROJECT_STRUCTURE.md) - Estrutura do projeto
+- [Environment Variables](./01-getting-started/ENVIRONMENT_VARIABLES.md) - Variáveis de ambiente
+- [Viewing Logs (Windows)](./01-getting-started/VIEWING_LOGS_WINDOWS.md) - Como ver logs
 
-- **[Início Rápido](./01-getting-started/QUICK_START.md)**
-  - Primeiro build
-  - Executar em desenvolvimento
-  - Testar a API
-  - Acessar documentação Swagger
+### 02. 🏗️ [Architecture](./02-architecture/)
+**Entenda a arquitetura.** Clean Architecture em detalhes.
 
-- **[Estrutura do Projeto](./01-getting-started/PROJECT_STRUCTURE.md)**
-  - Organização de pastas
-  - Convenções de nomenclatura
-  - Onde encontrar cada coisa
+- [Overview](./02-architecture/OVERVIEW.md) - Visão geral
+- [Domain Layer](./02-architecture/DOMAIN_LAYER.md) - Camada de domínio
+- [Application Layer](./02-architecture/APPLICATION_LAYER.md) - Camada de aplicação
+- [Infrastructure Layer](./02-architecture/INFRASTRUCTURE_LAYER.md) - Camada de infraestrutura
+- [Presentation Layer](./02-architecture/PRESENTATION_LAYER.md) - Camada de apresentação
+- [Main Layer](./02-architecture/MAIN_LAYER.md) - Camada principal
 
----
+### 03. 💻 [Development](./03-development/)
+**Desenvolva com confiança.** Guias de desenvolvimento e testes.
 
-### 2️⃣ Architecture (Arquitetura)
-Entenda como o projeto está estruturado.
+- [Development Guide](./03-development/DEVELOPMENT_GUIDE.md) - Guia de desenvolvimento
+- [Testing Guide](./03-development/TESTING_GUIDE.md) - Guia de testes
 
-- **[Visão Geral](./02-architecture/OVERVIEW.md)**
-  - Clean Architecture
-  - Camadas e responsabilidades
-  - Fluxo de dados
+### 04. ✨ [Features](./04-features/)
+**Funcionalidades do sistema.** Documentação das features implementadas.
 
-- **[Domain Layer](./02-architecture/DOMAIN_LAYER.md)**
-  - Entidades
-  - Interfaces
-  - Regras de negócio
+- [Authentication](./04-features/AUTHENTICATION.md) - Sistema de autenticação
+- [User Management](./04-features/USER_MANAGEMENT.md) - Gerenciamento de usuários
+- [Security](./04-features/SECURITY.md) - Recursos de segurança
 
-- **[Application Layer](./02-architecture/APPLICATION_LAYER.md)**
-  - Casos de uso
-  - Serviços
-  - DTOs
+### 05. 🗄️ [Database](./05-database/)
+**Banco de dados.** Schema, migrations e seeds.
 
-- **[Infrastructure Layer](./02-architecture/INFRASTRUCTURE_LAYER.md)**
-  - Repositórios
-  - Banco de dados
-  - Integrações externas
+- [README](./05-database/README.md) - Visão geral do banco
+- [Schema](./05-database/SCHEMA.md) - Estrutura do banco
+- [Seeds](./05-database/SEEDS.md) - Dados iniciais
+- **[Migrations](./05-database/migrations/)** - Sistema de migrations
+  - [Migrations Guide](./05-database/migrations/MIGRATIONS_GUIDE.md) - Guia completo
+  - [Quick Reference](./05-database/migrations/QUICK_REFERENCE.md) - Referência rápida
+  - [Examples](./05-database/migrations/MIGRATION_EXAMPLES.md) - Exemplos práticos
 
-- **[Presentation Layer](./02-architecture/PRESENTATION_LAYER.md)**
-  - Controllers
-  - Rotas
-  - Middlewares
+### 06. 📡 [API Reference](./06-api-reference/)
+**Documentação da API.** Todos os endpoints disponíveis.
 
-- **[Main Layer](./02-architecture/MAIN_LAYER.md)**
-  - Factory Pattern
-  - Bootstrap
-  - Dependency Injection
+- [API Overview](./06-api-reference/API_OVERVIEW.md) - Visão geral da API
+- [Auth Endpoints](./06-api-reference/AUTH_ENDPOINTS.md) - Endpoints de autenticação
+- [User Endpoints](./06-api-reference/USER_ENDPOINTS.md) - Endpoints de usuários
 
----
+### 07. 🚀 [Deployment](./07-deployment/)
+**Deploy em produção.** Configuração e boas práticas.
 
-### 3️⃣ Development (Desenvolvimento)
-Guias práticos para desenvolvimento diário.
+- [Environment Setup](./07-deployment/ENVIRONMENT_SETUP.md) - Configuração de ambiente
+- [External Configs](./07-deployment/EXTERNAL_CONFIGS.md) - Configurações externas
+- [Production Readiness](./07-deployment/PRODUCTION_READINESS.md) - Checklist de produção
 
-- **[Guia de Desenvolvimento](./03-development/DEVELOPMENT_GUIDE.md)**
-  - Workflow de desenvolvimento
-  - Comandos úteis
-  - Debugging
+### 08. 🔧 [Troubleshooting](./08-troubleshooting/)
+**Resolva problemas.** FAQ e soluções comuns.
 
-- **[Guia de Testes](./03-development/TESTING_GUIDE.md)**
-  - Testes unitários
-  - Testes de integração
-  - Testes E2E
-  - Coverage
+- [FAQ](./08-troubleshooting/FAQ.md) - Perguntas frequentes
 
-- **[Criando Novas Features](./03-development/CREATING_FEATURES.md)**
-  - Passo a passo
-  - Checklist
-  - Exemplos práticos
+### 09. 🗺️ [Roadmap](./09-roadmap/)
+**Melhorias e futuro.** Roadmap de melhorias e implementações.
 
-- **[Padrões de Código](./03-development/CODE_PATTERNS.md)**
-  - Convenções
-  - Best practices
-  - Code review checklist
+- [Improvements](./09-roadmap/IMPROVEMENTS.md) - Roadmap de melhorias
+- **Implementações:**
+  - [Environment Validation](./09-roadmap/IMPLEMENTATION_ENV_VALIDATION.md)
+  - [Health Check](./09-roadmap/IMPLEMENTATION_HEALTH_CHECK.md)
+  - [Migrations](./09-roadmap/IMPLEMENTATION_MIGRATIONS.md)
+  - [Pagination](./09-roadmap/IMPLEMENTATION_PAGINATION.md)
+  - [Structured Logs](./09-roadmap/IMPLEMENTATION_STRUCTURED_LOGS.md)
+  - [Tests](./09-roadmap/IMPLEMENTATION_TESTS.md)
+  - [Test Expansion Summary](./09-roadmap/TEST_EXPANSION_SUMMARY.md)
 
----
+### 10. 🤝 [Contributing](./10-contributing/)
+**Contribua com o projeto.** Guia de contribuição.
 
-### 4️⃣ Features (Funcionalidades)
-Documentação detalhada de cada funcionalidade.
-
-- **[Autenticação e Autorização](./04-features/AUTHENTICATION.md)**
-  - JWT
-  - Login/Logout
-  - Refresh tokens
-  - Permissões
-
-- **[Gestão de Usuários](./04-features/USER_MANAGEMENT.md)**
-  - CRUD de usuários
-  - Perfis
-  - Permissões
-
-- **[Segurança](./04-features/SECURITY.md)**
-  - Rate limiting
-  - CORS
-  - Validação
-  - Criptografia
-
-- **[API Endpoints](./04-features/API_ENDPOINTS.md)**
-  - Lista completa de endpoints
-  - Request/Response examples
-  - Status codes
+- [Contributing Guide](./10-contributing/CONTRIBUTING.md) - Como contribuir
 
 ---
 
-### 5️⃣ Deployment (Deploy)
-Tudo sobre ambientes e produção.
+## 🎯 Guias Rápidos
 
-- **[Configuração de Ambientes](./05-deployment/ENVIRONMENT_SETUP.md)**
-  - Development
-  - Test
-  - Production
-  - Variáveis de ambiente
+### Para Iniciantes
+1. 📖 [Quick Start](./01-getting-started/QUICK_START.md)
+2. 🏗️ [Architecture Overview](./02-architecture/OVERVIEW.md)
+3. 📡 [API Overview](./06-api-reference/API_OVERVIEW.md)
 
-- **[Guia de Deploy](./05-deployment/DEPLOYMENT.md)**
-  - Preparação
-  - Deploy passo a passo
-  - Nginx
-  - PM2
-  - SSL/TLS
+### Para Desenvolvedores
+1. 💻 [Development Guide](./03-development/DEVELOPMENT_GUIDE.md)
+2. 🧪 [Testing Guide](./03-development/TESTING_GUIDE.md)
+3. 🗄️ [Migrations Quick Reference](./05-database/migrations/QUICK_REFERENCE.md)
 
-- **[Preparação para Produção](./05-deployment/PRODUCTION_READINESS.md)**
-  - Checklist completo
-  - Correções urgentes
-  - Melhorias importantes
-  - Cronograma
-
-- **[Monitoramento](./05-deployment/MONITORING.md)**
-  - Logs
-  - Métricas
-  - Alertas
-  - Health checks
+### Para DevOps
+1. 🚀 [Production Readiness](./07-deployment/PRODUCTION_READINESS.md)
+2. ⚙️ [Environment Setup](./07-deployment/ENVIRONMENT_SETUP.md)
+3. 🔧 [Troubleshooting](./08-troubleshooting/FAQ.md)
 
 ---
 
-### 6️⃣ API Reference (Referência da API)
-Documentação técnica completa da API.
+## 🔍 Busca Rápida
 
-- **[Visão Geral da API](./06-api-reference/API_OVERVIEW.md)**
-  - Base URL
-  - Autenticação
-  - Formato de respostas
-  - Códigos de erro
+### Autenticação
+- [Como funciona JWT?](./04-features/AUTHENTICATION.md)
+- [Endpoints de auth](./06-api-reference/AUTH_ENDPOINTS.md)
+- [Rate limiting](./04-features/SECURITY.md)
 
-- **[Endpoints de Autenticação](./06-api-reference/AUTH_ENDPOINTS.md)**
-  - POST /api/auth/register
-  - POST /api/auth/login
-  - POST /api/auth/refresh
-  - POST /api/auth/logout
+### Banco de Dados
+- [Ver schema](./05-database/SCHEMA.md)
+- [Criar migration](./05-database/migrations/QUICK_REFERENCE.md)
+- [Aplicar migrations](./05-database/migrations/MIGRATIONS_GUIDE.md)
 
-- **[Endpoints de Usuários](./06-api-reference/USER_ENDPOINTS.md)**
-  - GET /api/usuarios
-  - POST /api/usuarios
-  - GET /api/usuarios/:id
-  - PUT /api/usuarios/:id
-  - DELETE /api/usuarios/:id
+### Testes
+- [Como escrever testes](./03-development/TESTING_GUIDE.md)
+- [Cobertura atual](./09-roadmap/IMPLEMENTATION_TESTS.md)
+- [Exemplos de testes](./09-roadmap/TEST_EXPANSION_SUMMARY.md)
 
-- **[Postman Collection](./06-api-reference/POSTMAN.md)**
-  - Como importar
-  - Como usar
-  - Exemplos
+### Deploy
+- [Checklist de produção](./07-deployment/PRODUCTION_READINESS.md)
+- [Variáveis de ambiente](./01-getting-started/ENVIRONMENT_VARIABLES.md)
+- [Configurações externas](./07-deployment/EXTERNAL_CONFIGS.md)
 
 ---
 
-### 7️⃣ Database (Banco de Dados)
-Documentação do banco de dados.
+## 📊 Status do Projeto
 
-- **[Schema](./07-database/SCHEMA.md)**
-  - Tabelas
-  - Relacionamentos
-  - Índices
+### Implementado ✅
+- ✅ Clean Architecture
+- ✅ Autenticação JWT
+- ✅ Gerenciamento de usuários
+- ✅ Validação de variáveis de ambiente
+- ✅ Logs estruturados (Winston)
+- ✅ Health checks completos
+- ✅ Paginação padronizada
+- ✅ Sistema de migrations
+- ✅ Testes automatizados (~75-85% coverage)
 
-- **[Migrations](./07-database/MIGRATIONS.md)**
-  - Como criar
-  - Como executar
-  - Como reverter
+### Em Desenvolvimento 🔄
+- 🔄 Soft delete
+- 🔄 Refresh tokens no banco
+- 🔄 RBAC (Roles e Permissões)
 
-- **[Seeds](./07-database/SEEDS.md)**
-  - Dados iniciais
-  - Usuário admin
+### Planejado 📅
+- 📅 Recuperação de senha
+- 📅 Verificação de email
+- 📅 Upload de avatar
+- 📅 Auditoria completa
 
----
-
-### 8️⃣ Troubleshooting (Solução de Problemas)
-Problemas comuns e soluções.
-
-- **[FAQ](./08-troubleshooting/FAQ.md)**
-  - Perguntas frequentes
-  - Soluções rápidas
-
-- **[Erros Comuns](./08-troubleshooting/COMMON_ERRORS.md)**
-  - Erro de conexão
-  - Erro de build
-  - Erro de testes
+Ver [Roadmap completo](./09-roadmap/IMPROVEMENTS.md)
 
 ---
 
-### 9️⃣ Roadmap (Melhorias Futuras)
-Planejamento de melhorias e evolução do projeto.
+## 🛠️ Tecnologias
 
-- **[Melhorias Sugeridas](./09-roadmap/IMPROVEMENTS.md)**
-  - Roadmap completo de melhorias
-  - Priorização por impacto vs esforço
-  - Implementações recomendadas por fase
-  - Quick wins e investimentos estratégicos
-
----
-
-### 🔟 Contributing (Contribuindo)
-Como contribuir para o projeto.
-
-- **[Guia de Contribuição](./10-contributing/CONTRIBUTING.md)**
-  - Como contribuir
-  - Pull requests
-  - Code review
-
-- **[Changelog](./10-contributing/CHANGELOG.md)**
-  - Histórico de versões
-  - Mudanças importantes
+- **Runtime:** Node.js 18+
+- **Linguagem:** TypeScript
+- **Framework:** Express.js
+- **ORM:** TypeORM
+- **Banco:** MySQL
+- **Autenticação:** JWT
+- **Logs:** Winston
+- **Testes:** Jest + Supertest
+- **Documentação:** Swagger/OpenAPI
 
 ---
 
-## 🔗 Links Rápidos
+## 📞 Suporte
 
-### Documentação Externa
-- [Swagger UI](http://localhost:3000/api-docs) - Documentação interativa da API
-- [TypeORM](https://typeorm.io/) - ORM utilizado
-- [Express.js](https://expressjs.com/) - Framework web
-- [Jest](https://jestjs.io/) - Framework de testes
+### Encontrou um problema?
+1. Verificar [FAQ](./08-troubleshooting/FAQ.md)
+2. Buscar em [Issues](https://github.com/Lucas2005y/MestreDB-backend/issues)
+3. Abrir nova issue
 
-### Ferramentas
-- [Postman Collection](../MestreDB-API.postman_collection.json) - Coleção de requisições
-- [Docker Compose](../docker-compose.yml) - Configuração Docker
-- [phpMyAdmin](http://localhost:8080) - Interface do MySQL
-
----
-
-## 📝 Convenções de Documentação
-
-### Ícones Utilizados
-- 📖 Documentação geral
-- 🚀 Início rápido / Deploy
-- 🏗️ Arquitetura
-- 🔧 Desenvolvimento
-- 🧪 Testes
-- 🔐 Segurança
-- ⚙️ Configuração
-- 📊 Banco de dados
-- 🐛 Troubleshooting
-- ✅ Checklist / Validação
-- ⚠️ Atenção / Importante
-- 💡 Dica / Sugestão
-
-### Formato de Código
-```typescript
-// Exemplos de código sempre com syntax highlighting
-```
-
-### Formato de Comandos
-```bash
-# Comandos sempre precedidos de comentário explicativo
-npm run dev
-```
+### Quer contribuir?
+1. Ler [Contributing Guide](./10-contributing/CONTRIBUTING.md)
+2. Fazer fork do projeto
+3. Abrir Pull Request
 
 ---
 
-## 🆘 Precisa de Ajuda?
+## 📝 Convenções
 
-1. **Consulte a documentação** - Provavelmente sua dúvida já está respondida aqui
-2. **Verifique o FAQ** - [FAQ](./08-troubleshooting/FAQ.md)
-3. **Abra uma issue** - [GitHub Issues](https://github.com/Lucas2005y/MestreDB-backend/issues)
-4. **Entre em contato** - contato@mestredb.com
+### Nomenclatura de Arquivos
+- **UPPER_CASE.md** - Documentação principal
+- **PascalCase.md** - Guias específicos
+- **kebab-case.md** - Arquivos auxiliares
+
+### Estrutura de Pastas
+- **01-09** - Numeração para ordem lógica
+- **Subpastas** - Agrupamento por tema
+
+---
+
+## 🔗 Links Úteis
+
+- **Repositório:** [GitHub](https://github.com/Lucas2005y/MestreDB-backend)
+- **Swagger:** http://localhost:3000/api-docs (em desenvolvimento)
+- **TypeORM:** https://typeorm.io/
+- **Clean Architecture:** https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html
 
 ---
 
 ## 📅 Última Atualização
 
-**Data:** 2025-01-10
+**Data:** 2024-11-26
 **Versão:** 1.0.0
-**Responsável:** Equipe MestreDB
+**Status:** ✅ Documentação completa e organizada
 
 ---
 
-## 📄 Licença
-
-Este projeto está sob a licença ISC. Veja o arquivo [LICENSE](../LICENSE) para mais detalhes.
+**Desenvolvido com ❤️ pela equipe MestreDB**
