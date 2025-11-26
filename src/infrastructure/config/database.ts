@@ -9,7 +9,7 @@ export const AppDataSource = new DataSource({
   username: process.env.DB_USERNAME || process.env.MYSQL_USERNAME || 'root',
   password: process.env.DB_PASSWORD || process.env.MYSQL_PASSWORD || '',
   database: process.env.DB_DATABASE || process.env.MYSQL_DATABASE || 'mestredb_sql',
-  synchronize: process.env.NODE_ENV !== 'production', // Auto-sync em desenvolvimento
+  synchronize: false, // ✅ Desabilitado - usar migrations para controle de schema
   logging: process.env.NODE_ENV === 'development',
   entities: [User],
   migrations: ['src/infrastructure/database/migrations/*.ts'],
