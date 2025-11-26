@@ -186,9 +186,9 @@ export interface PaginatedResponse<T> {
 
 ### 5. Testes Automatizados
 
-**Status:** ⚠️ Parcial - Estrutura existe, poucos testes
+**Status:** ⚠️ Parcial - Base implementada (~40-50% coverage)
 **Impacto:** Alto - Previne regressões
-**Esforço:** Alto (20-30 horas)
+**Esforço:** Alto (20-30 horas para 70% coverage)
 
 **Descrição:**
 Implementar testes unitários e de integração com cobertura mínima de 70%.
