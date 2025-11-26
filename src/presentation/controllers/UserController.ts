@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { UserUseCases } from '../../application/usecases/UserUseCases';
 import { CreateUserDTO, UpdateUserDTO, UpdateOwnProfileDTO, UserResponseDTO } from '../../application/dtos/UserDTO';
+import { PaginationHelper } from '../../application/dtos/PaginationDTO';
 import { User } from '../../domain/entities/User';
 import { AuditLogger } from '../../shared/utils/auditLogger';
 
@@ -158,26 +159,24 @@ export class UserController {
    */
   async getAllUsers(req: Request, res: Response): Promise<void> {
     try {
-      const page = parseInt(req.query.page as string) || 1;
-      const limit = parseInt(req.query.limit as string) || 10;
+      // Extrai e valida parâmetros de paginação
+      const paginationParams = PaginationHelper.fromQuery(req.query);
 
-      const result = await this.userUseCases.getAllUsers(page, limit);
+      // Busca usuários paginados
+      const result = await this.userUseCases.getAllUsers(paginationParams);
 
-      // Filtrar senhas dos usuários (super usuários não devem ver senhas)
-      const usersWithoutPasswords = this.removePasswordsFromList(result.users);
-
+      // Retorna resposta padronizada
       res.status(200).json({
         success: true,
         message: 'Usuários listados com sucesso',
-        data: {
-          users: usersWithoutPasswords,
-          total: result.total
-        }
+        data: result.data,
+        pagination: result.pagination,
       });
     } catch (error) {
       res.status(500).json({
         success: false,
-        message: 'Erro interno do servidor'
+        message: 'Erro interno do servidor',
+        error: error instanceof Error ? error.message : 'Erro desconhecido',
       });
     }
   }

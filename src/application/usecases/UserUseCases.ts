@@ -1,6 +1,7 @@
 import { User } from '../../domain/entities/User';
 import { IUserRepository, CreateUserData, UpdateUserData } from '../../domain/interfaces/IUserRepository';
 import { CreateUserDTO, UpdateUserDTO, UpdateOwnProfileDTO, UserResponseDTO, PaginatedUsersResponseDTO } from '../dtos/UserDTO';
+import { PaginationParams, PaginationHelper, PaginatedResponse } from '../dtos/PaginationDTO';
 import { validate } from 'class-validator';
 import { plainToClass } from 'class-transformer';
 import { PasswordService } from '../services/PasswordService';
@@ -15,9 +16,9 @@ export class UserUseCases {
     // Validação dos dados
     const userDto = plainToClass(CreateUserDTO, userData);
     const errors = await validate(userDto);
-    
+
     if (errors.length > 0) {
-      const errorMessages = errors.map(error => 
+      const errorMessages = errors.map(error =>
         Object.values(error.constraints || {}).join(', ')
       ).join('; ');
       throw new Error(`Dados inválidos: ${errorMessages}`);
@@ -69,7 +70,35 @@ export class UserUseCases {
     return user ? this.mapToResponseDTO(user) : null;
   }
 
-  async getAllUsers(page: number = 1, limit: number = 10): Promise<PaginatedUsersResponseDTO> {
+  /**
+   * Lista usuários com paginação padronizada
+   */
+  async getAllUsers(params: PaginationParams): Promise<PaginatedResponse<UserResponseDTO>> {
+    // Valida e normaliza parâmetros
+    const validatedParams = PaginationHelper.validateParams(params);
+
+    // Busca usuários
+    const { users, total } = await this.userRepository.findAll(
+      validatedParams.page,
+      validatedParams.limit
+    );
+
+    // Mapeia para DTOs
+    const data = users.map(user => this.mapToResponseDTO(user));
+
+    // Cria resposta paginada
+    return PaginationHelper.createResponse(data, {
+      page: validatedParams.page,
+      limit: validatedParams.limit,
+      total,
+    });
+  }
+
+  /**
+   * Lista usuários (método legado - mantido para compatibilidade)
+   * @deprecated Use getAllUsers com PaginationParams
+   */
+  async getAllUsersLegacy(page: number = 1, limit: number = 10): Promise<PaginatedUsersResponseDTO> {
     if (page <= 0) page = 1;
     if (limit <= 0 || limit > 100) limit = 10;
 
@@ -93,9 +122,9 @@ export class UserUseCases {
     // Validação dos dados
     const userDto = plainToClass(UpdateUserDTO, userData);
     const errors = await validate(userDto);
-    
+
     if (errors.length > 0) {
-      const errorMessages = errors.map(error => 
+      const errorMessages = errors.map(error =>
         Object.values(error.constraints || {}).join(', ')
       ).join('; ');
       throw new Error(`Dados inválidos: ${errorMessages}`);
@@ -128,7 +157,7 @@ export class UserUseCases {
       if (!passwordValidation.isValid) {
         throw new Error(`Dados inválidos: ${passwordValidation.errors.join(', ')}`);
       }
-      
+
       updateData.password = await this.passwordService.hashPassword(userData.password);
     }
 
@@ -144,9 +173,9 @@ export class UserUseCases {
     // Validação dos dados
     const userDto = plainToClass(UpdateOwnProfileDTO, userData);
     const errors = await validate(userDto);
-    
+
     if (errors.length > 0) {
-      const errorMessages = errors.map(error => 
+      const errorMessages = errors.map(error =>
         Object.values(error.constraints || {}).join(', ')
       ).join('; ');
       throw new Error(`Dados inválidos: ${errorMessages}`);

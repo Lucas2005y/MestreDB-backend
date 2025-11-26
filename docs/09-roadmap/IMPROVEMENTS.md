@@ -145,7 +145,7 @@ Melhorar `/api/health` para verificar status real dos serviços.
 
 ### 4. Paginação Padronizada
 
-**Status:** ⚠️ Parcial - Implementado apenas em `/usuarios`
+**Status:** ✅ Implementado
 **Impacto:** Médio - Melhora consistência da API
 **Esforço:** Baixo (2-3 horas)
 
