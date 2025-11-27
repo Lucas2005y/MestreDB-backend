@@ -190,6 +190,6 @@ POST /api/usuarios/1/restore
 
 ## Documentação Relacionada
 
-- [09-roadmap/IMPROVEMENTS.md](./09-roadmap/IMPROVEMENTS.md) - Melhorias implementadas
-- [10-soft-delete-protections.md](./10-soft-delete-protections.md) - Proteções de soft delete
-- [05-Padroes-Seguranca-Implementados.md](../CleanArchitectureGuide/05-Padroes-Seguranca-Implementados.md) - Segurança geral
+- [SOFT_DELETE.md](../04-features/SOFT_DELETE.md) - Proteções de soft delete
+- [IMPROVEMENTS.md](../09-roadmap/IMPROVEMENTS.md) - Melhorias implementadas
+- [SECURITY.md](../04-features/SECURITY.md) - Segurança geral

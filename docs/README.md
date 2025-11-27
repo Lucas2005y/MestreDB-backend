@@ -37,6 +37,7 @@ Bem-vindo à documentação completa do MestreDB Backend!
 - [Authentication](./04-features/AUTHENTICATION.md) - Sistema de autenticação
 - [User Management](./04-features/USER_MANAGEMENT.md) - Gerenciamento de usuários
 - [Security](./04-features/SECURITY.md) - Recursos de segurança
+- [Soft Delete](./04-features/SOFT_DELETE.md) - Sistema de deleção suave
 
 ### 05. 🗄️ [Database](./05-database/)
 **Banco de dados.** Schema, migrations e seeds.
@@ -44,6 +45,7 @@ Bem-vindo à documentação completa do MestreDB Backend!
 - [README](./05-database/README.md) - Visão geral do banco
 - [Schema](./05-database/SCHEMA.md) - Estrutura do banco
 - [Seeds](./05-database/SEEDS.md) - Dados iniciais
+- [Soft Delete Email Reuse](./05-database/SOFT_DELETE_EMAIL_REUSE.md) - Reutilização de emails
 - **[Migrations](./05-database/migrations/)** - Sistema de migrations
   - [Migrations Guide](./05-database/migrations/MIGRATIONS_GUIDE.md) - Guia completo
   - [Quick Reference](./05-database/migrations/QUICK_REFERENCE.md) - Referência rápida
@@ -143,9 +145,10 @@ Bem-vindo à documentação completa do MestreDB Backend!
 - ✅ Paginação padronizada
 - ✅ Sistema de migrations
 - ✅ Testes automatizados (~75-85% coverage)
+- ✅ Soft delete completo
+- ✅ Reutilização de emails após soft delete
 
 ### Em Desenvolvimento 🔄
-- 🔄 Soft delete
 - 🔄 Refresh tokens no banco
 - 🔄 RBAC (Roles e Permissões)
 
@@ -211,17 +214,20 @@ Ver [Roadmap completo](./09-roadmap/IMPROVEMENTS.md)
 
 ## 📅 Última Atualização
 
-**Data:** 2024-11-26
+**Data:** 2024-11-27
 **Versão:** 1.0.0
 **Status:** ✅ Documentação completa e organizada
 
 ---
 
 **Desenvolvido com ❤️ pela equipe MestreDB**
+
 ### 📝 Atualizações Recentes (Nov 2024)
 - ✅ Documentação reorganizada (numeração 01-10)
 - ✅ Migrations consolidado em `05-database/migrations/`
 - ✅ Getting Started atualizado com migrations e testes
--  Guia de contribuição criado
+- ✅ Guia de contribuição criado
 - ✅ Estrutura limpa e sem redundâncias
+- ✅ Soft delete implementado com proteções completas
+- ✅ Sistema de reutilização de emails após soft delete
 
