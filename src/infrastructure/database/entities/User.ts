@@ -1,7 +1,8 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, Index } from 'typeorm';
 
 @Entity('users')
-@Index('users_email_unique', ['email'], { unique: true })
+// Índice único funcional criado via migration para permitir reutilização de email após soft delete
+// @Index('users_email_unique', ['email'], { unique: true }) - REMOVIDO
 @Index('users_is_superuser_idx', ['is_superuser'])
 @Index('users_last_access_idx', ['last_access'])
 export class User {
@@ -11,7 +12,8 @@ export class User {
   @Column({ type: 'varchar', length: 80 })
   name!: string;
 
-  @Column({ type: 'varchar', length: 254, unique: true })
+  // Unique removido - índice funcional gerencia unicidade via migration
+  @Column({ type: 'varchar', length: 254 })
   email!: string;
 
   @Column({ type: 'varchar', length: 128 })
